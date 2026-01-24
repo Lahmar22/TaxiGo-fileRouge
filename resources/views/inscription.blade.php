@@ -209,7 +209,7 @@
                     <div class="mt-8 pt-6 border-t border-gray-200">
                         <p class="text-center text-gray-600">
                             Vous avez déjà un compte ?
-                            <a href="login.html"
+                            <a href="login"
                                 class="font-semibold text-yellow-600 hover:text-yellow-700 transition-colors">
                                 Se connecter
                             </a>
