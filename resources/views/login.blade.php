@@ -158,7 +158,7 @@
                     <div class="mt-8 pt-6 border-t border-gray-200">
                         <p class="text-center text-gray-600">
                             Vous n'avez pas de compte ? 
-                            <a href="inscription.html" class="font-semibold text-yellow-600 hover:text-yellow-700 transition-colors">
+                            <a href="inscription" class="font-semibold text-yellow-600 hover:text-yellow-700 transition-colors">
                                 Créer un compte
                             </a>
                         </p>
