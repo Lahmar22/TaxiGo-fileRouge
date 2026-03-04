@@ -1,13 +1,15 @@
 export default function Footer() {
-  const currentYear = new Date().getFullYear();
+    const currentYear = new Date().getFullYear();
 
-  return (
-    <footer className="bg-white text-black">
-        <div className="mt-8 md:mt-0 md:order-1">
-          <p className="text-center text-sm">
-            &copy; {currentYear} TaxiGo. All rights reserved.
-          </p>
-        </div>
-    </footer>
-  );
+    return (
+        <>
+            <footer className="text-white py-12 px-6">
+                <div className="max-w-7xl mx-auto text-center">
+                    <p className="text-black">
+                        © {currentYear} TaxiGo. Tous droits réservés.
+                    </p>
+                </div>
+            </footer>
+        </>
+    );
 }
