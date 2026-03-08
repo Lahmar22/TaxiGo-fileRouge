@@ -1,10 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
 
-Route::get('/drivers', function () {
-    return response()->json([
-        ['name' => 'Ahmed'],
-        ['name' => 'Yassine']
-    ]);
-});
+
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
