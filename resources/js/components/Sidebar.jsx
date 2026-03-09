@@ -1,101 +1,125 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import imagelogo from "../assets/TaxiGo.png";
 
 export default function Sidebar() {
-    return (
-        <aside className="bg-gradient-to-b from-slate-900 to-[#1a2744] border-r border-amber-500/10 min-h-screen w-64 flex flex-col fixed top-0 left-0 z-40 transition-transform">
 
-            {/* Logo */}
-            <div className="px-6 py-6 border-b border-white/10">
-                <Link to="/" className="flex items-center gap-3">
+  const location = useLocation();
 
-                    <div className="w-10 h-10 bg-gradient-to-br from-yellow-400 to-amber-600 rounded-xl flex items-center justify-center shadow-lg">
+  const linkStyle = (path) =>
+    `flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition
+    ${
+      location.pathname === path
+        ? "bg-amber-500/10 text-amber-400"
+        : "text-slate-300 hover:bg-white/5 hover:text-white"
+    }`;
 
-                        <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5S16.67 13 17.5 13s1.5.67 1.5 1.5S18.33 16 17.5 16zM5 11l1.5-4.5h11L19 11H5z" />
-                        </svg>
+  return (
+    <aside className="bg-gradient-to-b from-slate-900 to-[#1a2744] border-r border-white/10 min-h-screen w-64 flex flex-col fixed top-0 left-0 z-40">
 
-                    </div>
+      {/* Logo */}
+      <div className="py-6 border-b border-white/10">
+        <Link to="/" className="flex items-center justify-center">
+          <img src={imagelogo} alt="TaxiGo" className="w-32 object-contain" />
+        </Link>
+      </div>
 
-                    <span className="text-xl font-bold text-white tracking-tight">
-                        Taxi<span className="text-yellow-400">Go</span>
-                    </span>
+      {/* Profile */}
+      <div className="px-6 py-5 border-b border-white/10">
+        <div className="flex items-center gap-3">
 
-                </Link>
+          <div className="relative">
+            <div className="w-10 h-10 bg-gradient-to-br from-yellow-400 to-amber-500 rounded-full flex items-center justify-center font-bold text-slate-900 text-sm">
+              AK
             </div>
 
-            {/* Profile */}
-            <div className="px-6 py-5 border-b border-white/10">
+            <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-400 border-2 border-slate-900 rounded-full"></span>
+          </div>
 
-                <div className="flex items-center gap-3">
+          <div>
+            <p className="text-white font-semibold text-sm">
+              Ahmed Karimi
+            </p>
+            <p className="text-slate-400 text-xs">
+              Client Premium
+            </p>
+          </div>
 
-                    <div className="relative">
+        </div>
+      </div>
 
-                        <div className="w-10 h-10 bg-gradient-to-br from-yellow-400 to-amber-500 rounded-full flex items-center justify-center font-bold text-slate-900 text-sm">
-                            AK
-                        </div>
+      {/* Navigation */}
+      <nav className="flex-1 px-4 py-6 space-y-2">
 
-                        <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-400 border-2 border-slate-900 rounded-full"></span>
+        {/* Dashboard */}
+        <Link to="/dashboard" className={linkStyle("/dashboard")}>
 
-                    </div>
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+              d="M3 13h8V3H3v10zM13 21h8v-6h-8v6zM13 3v8h8V3h-8zM3 21h8v-6H3v6z" />
+          </svg>
 
-                    <div>
-                        <p className="text-white font-semibold text-sm">
-                            Ahmed Karimi
-                        </p>
-                        <p className="text-slate-400 text-xs">
-                            Client Premium
-                        </p>
-                    </div>
+          Tableau de bord
+        </Link>
 
-                </div>
-            </div>
+        {/* History */}
+        <Link to="/history" className={linkStyle("/history")}>
 
-            {/* Navigation */}
-            <nav className="flex-1 px-4 py-5 space-y-1">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+              d="M12 8v4l3 3M12 4a8 8 0 108 8" />
+          </svg>
 
-                <p className="text-slate-600 text-xs font-semibold uppercase tracking-widest px-3 mb-3">
-                    Principal
-                </p>
+          Historique
+        </Link>
 
-                <Link to="/dashboard" className="sidebar-link">
+        {/* Section */}
+        <div className="pt-6">
+          <p className="text-slate-500 text-xs font-semibold uppercase tracking-widest px-2 mb-3">
+            Compte
+          </p>
+        </div>
 
-                    Tableau de bord
-                </Link>
+        {/* Profile */}
+        <Link to="/profile" className={linkStyle("/profile")}>
 
-                <Link to="/history" className="sidebar-link">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+              d="M5.121 17.804A7.5 7.5 0 0112 15a7.5 7.5 0 016.879 2.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
 
-                    Historique
-                    <span className="sidebar-badge">12</span>
-                </Link>
+          Mon profil
+        </Link>
 
-                <div className="pt-4">
-                    <p className="text-slate-600 text-xs font-semibold uppercase tracking-widest px-3 mb-3">
-                        Compte
-                    </p>
-                </div>
+        {/* Settings */}
+        <Link to="/settings" className={linkStyle("/settings")}>
 
-                <Link to="/profile" className="sidebar-link">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+              d="M11.983 13.938a2 2 0 100-3.876 2 2 0 000 3.876z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+              d="M20.938 12a8.938 8.938 0 11-17.876 0 8.938 8.938 0 0117.876 0z" />
+          </svg>
 
-                    Mon profil
-                </Link>
+          Paramètres
+        </Link>
 
-                <Link to="/settings" className="sidebar-link">
+      </nav>
 
-                    Paramètres
-                </Link>
+      {/* Logout */}
+      <div className="px-4 py-5 border-t border-white/10">
 
-            </nav>
+        <button className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-red-400 hover:text-red-300 hover:bg-red-500/10 transition w-full">
 
-            {/* Logout */}
-            <div className="px-4 py-5 border-t border-white/10">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1m0-10V3" />
+          </svg>
 
-                <button className="sidebar-link text-red-400 hover:!text-red-300 hover:!bg-red-400/10 w-full">
+          Déconnexion
+        </button>
 
-                    Déconnexion
-                </button>
+      </div>
 
-            </div>
-
-        </aside>
-    );
+    </aside>
+  );
 }
