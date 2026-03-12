@@ -1,5 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import imagelogo from "../assets/TaxiGo.png";
+import { logout } from "../api/AuthAPI"; 
 
 export default function Sidebar() {
 
@@ -108,7 +109,7 @@ export default function Sidebar() {
       {/* Logout */}
       <div className="px-4 py-5 border-t border-white/10">
 
-        <button className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-red-400 hover:text-red-300 hover:bg-red-500/10 transition w-full">
+        <button onClick={logout} className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-red-400 hover:text-red-300 hover:bg-red-500/10 transition w-full">
 
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
