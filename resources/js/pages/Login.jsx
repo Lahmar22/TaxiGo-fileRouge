@@ -24,6 +24,7 @@ export default function Login() {
             const response = await axios.post("http://127.0.0.1:8000/api/login", form);
             console.log(response.data.user)
             const role = response.data.role;
+            localStorage.setItem("token", response.data.token);
             if (response.data.success) {
                 if(role == "client"){
                     navigate("/client/dashboard");
@@ -39,7 +40,7 @@ export default function Login() {
            
         } catch (error) {
             if (error.response) {
-                console.log(error.response.data);
+                setMessage(error.response.data.message);
             }
         }
     };
@@ -52,6 +53,11 @@ export default function Login() {
                     <img src={logoImage} alt="TaxiGo" className="h-16" />
                 </div>
 
+                {message && (
+                    <div className="mb-4 p-3 text-sm text-red-700 bg-red-100 border border-red-300 rounded-lg text-center">
+                        {message}
+                    </div>
+                )}
                 <h2 className="text-2xl font-bold text-center text-slate-900 mb-6">
                     Connexion
                 </h2>
