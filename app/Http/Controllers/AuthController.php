@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\Client;
 use App\Models\Chauffeur;
@@ -43,22 +44,30 @@ class AuthController extends Controller
     }
 
     public function login(Request $request){
-        $inputs = $request->validate([
+        $request->validate([
             'email' => 'required|string|email|',
             'password' => 'required'
         ]);
 
-        $user = User::where('email', $inputs['email'])->first();
+        $credentials = $request->only('email','password');
 
-        if (!$user || !Hash::check($inputs['password'], $user->password)) {
-            return response()->json(['message' => 'Invalid credentials'], 401);
+        if (!Auth::attempt($credentials)) {
+
+            return response()->json([
+                'message' => 'Email ou mot de passe invalide'
+            ],401);
+
         }
-
         
+        $user = Auth::user();
+
+        $token = $user->createToken('api-token')->plainTextToken;
 
         $client = Client::where('user_id', $user->id)->exists();
         $admin = Administrateur::where('user_id', $user->id)->exists();
         $chauffeur = Chauffeur::where('user_id', $user->id)->exists();
+
+        
 
         if($client){
             $role = 'client';
@@ -73,8 +82,18 @@ class AuthController extends Controller
        return response()->json([
             'success' => true,
             'user' => $user,
-            'role' => $role
+            'role' => $role,
+            'token' => $token
         ], 201); 
 
+    }
+
+    public function logout(Request $request)
+    {
+        $request->user()->currentAccessToken()->delete();
+
+        return response()->json([
+            "message" => "Logged out successfully"
+        ]);
     }
 }
