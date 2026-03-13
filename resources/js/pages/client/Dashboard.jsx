@@ -30,8 +30,8 @@ export default function Dashboard() {
   });
   
   const { latitude, longitude, error } = location;
-  if (!isLoaded) return <p>Chargement de la carte...</p>;
-  if (error) return <p>Erreur : {error}</p>;
+  if (!isLoaded) return <p></p>;
+  if (error) return <p>{error}</p>;
 
   return (
     <div className="flex min-h-screen bg-slate-100">
@@ -166,7 +166,7 @@ export default function Dashboard() {
               <div className="bg-gradient-to-br from-slate-200 to-slate-100 rounded-lg flex items-center justify-center relative overflow-hidden h-[500px]">
 
                 <GoogleMap
-                  mapContainerStyle={{ width: "100%", height: "400px" }}
+                  mapContainerStyle={{ width: "100%", height: "100%" }}
                   center={location}
                   zoom={15}
                 >
