@@ -1,9 +1,38 @@
 import Footer from "../../components/Footer";
 import Sidebar from "../../components/Sidebar";
 import Header from "../../components/Header";
+import { useState, useEffect } from "react";
+import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
+import "leaflet/dist/leaflet.css";
 
 
 export default function Dashboard() {
+  const [location, setLocation] = useState({ lat: 0, lng: 0 });
+  const [locationError, setLocationError] = useState(null);
+  useEffect(() => {
+    if (!navigator.geolocation) {
+      setError("Géolocalisation non supportée");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setLocation({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        });
+      },
+      (error) => setLocationError(error.message)
+    );
+  }, []);
+  const { isLoaded } = useLoadScript({
+    googleMapsApiKey: "YOUR_GOOGLE_MAPS_API_KEY", 
+  });
+  
+  const { latitude, longitude, error } = location;
+  if (!isLoaded) return <p>Chargement de la carte...</p>;
+  if (error) return <p>Erreur : {error}</p>;
+
   return (
     <div className="flex min-h-screen bg-slate-100">
 
@@ -21,6 +50,7 @@ export default function Dashboard() {
             </h2>
             <p className="text-slate-500 mt-1">Prêt pour votre prochaine course ?</p>
           </div>
+
 
           <div className="grid xl:grid-cols-5 gap-6">
 
@@ -90,30 +120,39 @@ export default function Dashboard() {
                 </div>
 
                 <div className="space-y-3" id="upcomingList">
-                  <div class="bg-white rounded-[18px] border border-slate-100 p-5 flex items-center gap-4 transition-all duration-300">
-                    <div class="flex flex-col items-center flex-shrink-0">
-                      <div class="route-dot bg-yellow-400"></div>
-                      <div class="route-line"></div>
-                      <div class="route-dot bg-red-400"></div>
-                    </div>  
-                    <div class="flex-1 min-w-0">
-                      <div class="flex items-start justify-between gap-2">
+                  <div className="bg-white rounded-[18px] border border-slate-100 p-5 flex items-center gap-4 transition-all duration-300">
+                    <div className="flex flex-col items-center flex-shrink-0">
+                      <div className="route-dot bg-yellow-400"></div>
+                      <div className="route-line"></div>
+                      <div className="route-dot bg-red-400"></div>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-2">
                         <div>
-                          <p class="text-slate-900 font-semibold text-sm truncate">Médina, Rabat</p>
-                          <p class="text-slate-400 text-xs">→ Agdal, Rabat</p>
+                          <p className="text-slate-900 font-semibold text-sm truncate">Médina, Rabat</p>
+                          <p className="text-slate-400 text-xs">→ Agdal, Rabat</p>
                         </div>
-                        <span class="ride-status status-upcoming flex-shrink-0">À venir</span>
+                        <span className="ride-status status-upcoming flex-shrink-0">À venir</span>
                       </div>
-                      <div class="flex items-center gap-3 mt-2">
-                        <span class="text-xs text-slate-400 flex items-center gap-1">
-                          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      <div className="flex items-center gap-3 mt-2">
+                        <span className="text-xs text-slate-400 flex items-center gap-1">
+                          <svg
+                            className="w-3.5 h-3.5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                            />
                           </svg>
                           14 Mars, 09:00
                         </span>
-                        <span class="text-xs font-semibold text-amber-600">55 MAD</span>
+                        <span className="text-xs font-semibold text-amber-600">55 MAD</span>
                       </div>
                     </div>
                   </div>
@@ -125,22 +164,17 @@ export default function Dashboard() {
             <div className="xl:col-span-3 space-y-6">
 
               <div className="bg-gradient-to-br from-slate-200 to-slate-100 rounded-lg flex items-center justify-center relative overflow-hidden h-[500px]">
-                <div className="text-center z-10">
-                  <svg className="w-12 h-12 text-slate-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5"
-                      d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-                  </svg>
-                  <p className="text-slate-500 text-sm font-medium">Carte en temps réel</p>
-                  <p className="text-slate-400 text-xs">Votre position sera affichée ici</p>
-                </div>
-                <div className="absolute top-6 right-8 bg-yellow-400 rounded-full p-2 shadow-lg">
-                  <svg className="w-4 h-4 text-slate-900" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99z" />
-                  </svg>
-                </div>
+
+                <GoogleMap
+                  mapContainerStyle={{ width: "100%", height: "400px" }}
+                  center={location}
+                  zoom={15}
+                >
+                  <Marker position={location} />
+                </GoogleMap>
               </div>
 
-              
+
             </div>
           </div>
 
