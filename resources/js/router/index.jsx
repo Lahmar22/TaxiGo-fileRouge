@@ -2,9 +2,10 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "../pages/Home";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
-import DashboardClient from "../pages/client/dashboard";
+import DashboardClient from "../pages/client/Dashboard";
 import DashboardAdmin from "../pages/admin/Dashboard";
 import DashboardChauffeur from "../pages/chauffeur/Dashboard";
+import History from "../pages/client/History";
 
 export default function Router() {
     return (
@@ -16,6 +17,7 @@ export default function Router() {
                 <Route path="/client/dashboard" element={<DashboardClient/>} />
                 <Route path="/admin/dashboard" element={<DashboardAdmin/>} />
                 <Route path="/chauffeur/dashboard" element={<DashboardChauffeur/>} />
+                <Route path="/client/history" element={<History/>} />
             </Routes>
         </BrowserRouter>
     );
