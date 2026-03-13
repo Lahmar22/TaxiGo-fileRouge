@@ -52,7 +52,7 @@ export default function Sidebar() {
       <nav className="flex-1 px-4 py-6 space-y-2">
 
         {/* Dashboard */}
-        <Link to="/dashboard" className={linkStyle("/dashboard")}>
+        <Link to="/client/dashboard" className={linkStyle("/dashboard")}>
 
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
@@ -63,7 +63,7 @@ export default function Sidebar() {
         </Link>
 
         {/* History */}
-        <Link to="/history" className={linkStyle("/history")}>
+        <Link to="/client/history" className={linkStyle("/history")}>
 
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
