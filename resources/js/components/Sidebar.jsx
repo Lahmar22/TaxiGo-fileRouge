@@ -81,7 +81,7 @@ export default function Sidebar() {
         </div>
 
         {/* Profile */}
-        <Link to="/profile" className={linkStyle("/profile")}>
+        <Link to="/client/profile" className={linkStyle("/profile")}>
 
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
@@ -89,19 +89,6 @@ export default function Sidebar() {
           </svg>
 
           Mon profil
-        </Link>
-
-        {/* Settings */}
-        <Link to="/settings" className={linkStyle("/settings")}>
-
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-              d="M11.983 13.938a2 2 0 100-3.876 2 2 0 000 3.876z" />
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-              d="M20.938 12a8.938 8.938 0 11-17.876 0 8.938 8.938 0 0117.876 0z" />
-          </svg>
-
-          Paramètres
         </Link>
 
       </nav>
