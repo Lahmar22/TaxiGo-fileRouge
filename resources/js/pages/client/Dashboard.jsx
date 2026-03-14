@@ -40,7 +40,7 @@ export default function Dashboard() {
 
       <div className="flex flex-col flex-1 lg:ml-64">
 
-        <Header />
+        <Header page="Tableau de bord" />
 
 
         <main className="flex-1 p-6 space-y-6">
@@ -115,7 +115,7 @@ export default function Dashboard() {
               <div className="py-5">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-slate-900 font-bold text-base">Courses à venir</h3>
-                  <a href="history.html"
+                  <a href="/client/history"
                     className="text-yellow-600 text-xs font-semibold hover:text-yellow-700 transition-colors">Tout voir →</a>
                 </div>
 
