@@ -1,4 +1,4 @@
-export default function Header() {
+export default function Header({page}) {
     const today = new Date().toLocaleDateString("fr-FR", {
         weekday: "long",
         day: "numeric",
@@ -11,7 +11,7 @@ export default function Header() {
 
             <div>
                 <h1 className="text-slate-900 font-bold text-lg leading-tight">
-                    Tableau de bord
+                    {page}
                 </h1>
                 <p className="text-slate-400 text-xs capitalize">
                     {today}
