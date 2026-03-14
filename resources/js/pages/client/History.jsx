@@ -63,7 +63,7 @@ export default function History() {
 
             <div className="flex flex-col flex-1 lg:ml-64">
 
-                <Header />
+                <Header page="History" />
 
                 <main className="p-6 lg:p-8 max-w-6xl w-full mx-auto">
 
@@ -95,11 +95,11 @@ export default function History() {
                                     key={f}
                                     onClick={() => setFilter(f)}
                                     className={`px-4 py-2 rounded-full text-sm font-semibold transition
-                ${filter === f
+                                        ${filter === f
                                             ? "bg-yellow-400 text-black shadow"
                                             : "bg-slate-100 text-slate-600 hover:bg-slate-200"}
-                `}
-                                >
+                                    `}
+                                    >
                                     {f}
                                 </button>
                             ))}
