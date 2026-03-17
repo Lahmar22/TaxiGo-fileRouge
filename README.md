@@ -58,7 +58,7 @@ The project uses **Laravel** for the backend (API & database management) and **R
 - Node.js >= 18.x, npm >= 9.x
 - PHP >= 8.1
 - Composer
-- MySQL or MariaDB
+- PostgreSQL
 - Git
 
 ---
