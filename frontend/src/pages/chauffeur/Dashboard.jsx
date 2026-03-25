@@ -1,6 +1,6 @@
 import { useState } from "react";
-import Header from "../chauffeur/Header";
-import Sidebar from "../chauffeur/Sidebar";
+import Header from "../chauffeur/components/Header";
+import Sidebar from "../chauffeur/components/Sidebar";
 
 export default function Dashboard() {
     const [openSidebar, setOpenSidebar] = useState(false);
