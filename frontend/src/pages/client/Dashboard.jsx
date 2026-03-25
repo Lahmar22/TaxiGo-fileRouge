@@ -1,6 +1,6 @@
 import Footer from "../../components/Footer";
-import Sidebar from "../../components/Sidebar";
-import Header from "../../components/Header";
+import Sidebar from "./components/Sidebar";
+import Header from "./components/Header";
 import { useState, useEffect } from "react";
 import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
 
@@ -8,6 +8,7 @@ import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
 export default function Dashboard() {
   const [location, setLocation] = useState({ lat: 0, lng: 0 });
   const [locationError, setLocationError] = useState(null);
+  const [openSidebar, setOpenSidebar] = useState(false);
   useEffect(() => {
     if (!navigator.geolocation) {
       setError("Géolocalisation non supportée");
@@ -35,11 +36,11 @@ export default function Dashboard() {
   return (
     <div className="flex min-h-screen bg-slate-100">
 
-      <Sidebar />
+      <Sidebar open={openSidebar} setOpen={setOpenSidebar} />
 
       <div className="flex flex-col flex-1 lg:ml-64">
 
-        <Header page="Tableau de bord" />
+        <Header page="Tableau de bord" setOpenSidebar={setOpenSidebar} />
 
 
         <main className="flex-1 p-6 space-y-6">
@@ -54,7 +55,7 @@ export default function Dashboard() {
           <div className="grid xl:grid-cols-5 gap-6">
 
             <div className="xl:col-span-2">
-              <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl relative overflow-hidden p-7 p-7 delay-1">
+              <div className="bg-linear-to-br from-slate-900 to-slate-800 rounded-2xl relative overflow-hidden p-7 delay-1">
 
                 {/* Header */}
                 <div className="flex items-center justify-between mb-6">
@@ -106,7 +107,7 @@ export default function Dashboard() {
 
                 {/* CTA button */}
                 <button onClick={() => submitBooking()}
-                  className="w-full py-4 rounded-xl font-bold text-slate-900 text-base bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 hover:shadow-2xl hover:shadow-yellow-500/30 hover:scale-[1.02] transition-all duration-300 flex items-center justify-center gap-2">
+                  className="w-full py-4 rounded-xl font-bold text-slate-900 text-base bg-linear-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 hover:shadow-2xl hover:shadow-yellow-500/30 hover:scale-[1.02] transition-all duration-300 flex items-center justify-center gap-2">
                   chercher des offers
                 </button>
               </div>
@@ -120,7 +121,7 @@ export default function Dashboard() {
 
                 <div className="space-y-3" id="upcomingList">
                   <div className="bg-white rounded-[18px] border border-slate-100 p-5 flex items-center gap-4 transition-all duration-300">
-                    <div className="flex flex-col items-center flex-shrink-0">
+                    <div className="flex flex-col items-center shrink-0">
                       <div className="route-dot bg-yellow-400"></div>
                       <div className="route-line"></div>
                       <div className="route-dot bg-red-400"></div>
@@ -131,7 +132,7 @@ export default function Dashboard() {
                           <p className="text-slate-900 font-semibold text-sm truncate">Médina, Rabat</p>
                           <p className="text-slate-400 text-xs">→ Agdal, Rabat</p>
                         </div>
-                        <span className="ride-status status-upcoming flex-shrink-0">À venir</span>
+                        <span className="ride-status status-upcoming shrink-0">À venir</span>
                       </div>
                       <div className="flex items-center gap-3 mt-2">
                         <span className="text-xs text-slate-400 flex items-center gap-1">
@@ -162,7 +163,7 @@ export default function Dashboard() {
 
             <div className="xl:col-span-3 space-y-6">
 
-              <div className="bg-gradient-to-br from-slate-200 to-slate-100 rounded-lg flex items-center justify-center relative overflow-hidden h-[500px]">
+              <div className="bg-linear-to-br from-slate-200 to-slate-100 rounded-lg flex items-center justify-center relative overflow-hidden h-125">
 
                 <GoogleMap
                   mapContainerStyle={{ width: "100%", height: "100%" }}
