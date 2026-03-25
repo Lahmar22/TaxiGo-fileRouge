@@ -38,7 +38,7 @@ export default function Register() {
         }
     };
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white via-slate-50 to-slate-100 p-6">
+        <div className="min-h-screen flex items-center justify-center bg-linear-to-b from-white via-slate-50 to-slate-100 p-6">
 
             <div className="w-full max-w-lg bg-white shadow-xl rounded-3xl p-8 border border-slate-100">
 
@@ -97,7 +97,7 @@ export default function Register() {
                         className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-yellow-400 focus:outline-none"
                     />
 
-                    <button type="submit" className="w-full bg-gradient-to-r from-yellow-500 to-amber-600 text-white py-3 rounded-xl font-semibold hover:shadow-lg transition">
+                    <button type="submit" className="w-full bg-linear-to-r from-yellow-500 to-amber-600 text-white py-3 rounded-xl font-semibold hover:shadow-lg transition">
                         S'inscrire
                     </button>
 
