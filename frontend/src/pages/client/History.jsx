@@ -1,5 +1,5 @@
-import Sidebar from "../../components/Sidebar";
-import Header from "../../components/Header";
+import Sidebar from "../client/components/Sidebar";
+import Header from "../client/components/Header";
 import { useState } from "react";
 export default function History() {
     const [filter, setFilter] = useState("all");
