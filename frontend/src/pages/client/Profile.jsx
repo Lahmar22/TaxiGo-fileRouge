@@ -1,5 +1,5 @@
-import Sidebar from "../../components/Sidebar";
-import Header from "../../components/Header";
+import Sidebar from "../client/components/Sidebar";
+import Header from "../client/components/Header";
 import { useState } from "react";
 
 export default function Profile() {
@@ -15,7 +15,7 @@ export default function Profile() {
   };
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-slate-100 to-slate-200">
+    <div className="flex min-h-screen bg-linear-to-br from-slate-100 to-slate-200">
 
       {/* Sidebar */}
       <Sidebar page="profile" />
@@ -39,7 +39,7 @@ export default function Profile() {
           </div>
 
           {/* Profile Card */}
-          <div className="relative bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl overflow-hidden mb-8 afu d1">
+          <div className="relative bg-linear-to-br from-slate-900 to-slate-800 rounded-3xl overflow-hidden mb-8 afu d1">
             <div
               className="absolute inset-0"
               style={{
@@ -58,8 +58,8 @@ export default function Profile() {
 
             <div className="relative z-10 p-8 flex sm:flex-row items-center sm:items-start gap-6">
               {/* Avatar */}
-              <div className="avatar-ring flex-shrink-0">
-                <div className="w-24 h-24 bg-gradient-to-br from-yellow-400 to-amber-500 rounded-full flex items-center justify-center font-black text-slate-900 text-3xl">
+              <div className="avatar-ring shrink-0">
+                <div className="w-24 h-24 bg-linear-to-br from-yellow-400 to-amber-500 rounded-full flex items-center justify-center font-black text-slate-900 text-3xl">
                   AK
                 </div>
               </div>
