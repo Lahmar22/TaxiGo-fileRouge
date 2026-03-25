@@ -45,7 +45,7 @@ export default function Login() {
         }
     };
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white via-slate-50 to-slate-100 p-6">
+        <div className="min-h-screen flex items-center justify-center bg-linear-to-b from-white via-slate-50 to-slate-100 p-6">
 
             <div className="w-full max-w-md bg-white shadow-xl rounded-3xl p-8 border border-slate-100">
 
@@ -93,7 +93,7 @@ export default function Login() {
                     </div>
 
                     {/* Button */}
-                    <button type="submit" className="w-full bg-gradient-to-r from-yellow-500 to-amber-600 text-white py-3 rounded-xl font-semibold hover:shadow-lg transition">
+                    <button type="submit" className="w-full bg-linear-to-r from-yellow-500 to-amber-600 text-white py-3 rounded-xl font-semibold hover:shadow-lg transition">
                         Se connecter
                     </button>
 
