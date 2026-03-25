@@ -12,7 +12,7 @@ export default function Footer() {
                         {/* BRAND */}
                         <div className="md:col-span-1">
                             <div className="flex items-center gap-3 mb-4">
-                                <div className="w-10 h-10 bg-gradient-to-br from-yellow-400 to-amber-600 rounded-xl flex items-center justify-center">
+                                <div className="w-10 h-10 bg-linear-to-br from-yellow-400 to-amber-600 rounded-xl flex items-center justify-center">
                                     <svg
                                         className="w-6 h-6 text-white"
                                         fill="currentColor"
@@ -73,7 +73,7 @@ export default function Footer() {
                             <ul className="space-y-3 text-slate-400 text-sm">
                                 <li className="flex items-center gap-2">
                                     <svg
-                                        className="w-4 h-4 text-yellow-400 flex-shrink-0"
+                                        className="w-4 h-4 text-yellow-400 shrink-0"
                                         fill="none"
                                         stroke="currentColor"
                                         viewBox="0 0 24 24"
@@ -90,7 +90,7 @@ export default function Footer() {
 
                                 <li className="flex items-center gap-2">
                                     <svg
-                                        className="w-4 h-4 text-yellow-400 flex-shrink-0"
+                                        className="w-4 h-4 text-yellow-400 shrink-0"
                                         fill="none"
                                         stroke="currentColor"
                                         viewBox="0 0 24 24"
@@ -107,7 +107,7 @@ export default function Footer() {
 
                                 <li className="flex items-start gap-2">
                                     <svg
-                                        className="w-4 h-4 text-yellow-400 flex-shrink-0 mt-0.5"
+                                        className="w-4 h-4 text-yellow-400 shrink-0 mt-0.5"
                                         fill="none"
                                         stroke="currentColor"
                                         viewBox="0 0 24 24"
