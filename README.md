@@ -42,7 +42,7 @@ The project uses **Laravel** for the backend (API & database management) and **R
 **Backend:**
 - Laravel 10
 - PHP 8+
-- MySQL / MariaDB
+- PostgreSQL
 - Sanctum (API authentication)
 
 **Deployment:**
