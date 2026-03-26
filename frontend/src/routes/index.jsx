@@ -7,6 +7,8 @@ import DashboardAdmin from "../pages/admin/Dashboard";
 import DashboardChauffeur from "../pages/chauffeur/Dashboard";
 import History from "../pages/client/History";
 import Profile from "../pages/client/Profile";
+import HistoryChauffeur from "../pages/chauffeur/History";
+import ProfileChauffeur from "../pages/chauffeur/Profile";
 
 export default function Router() {
     return (
@@ -19,7 +21,9 @@ export default function Router() {
                 <Route path="/admin/dashboard" element={<DashboardAdmin/>} />
                 <Route path="/chauffeur/dashboard" element={<DashboardChauffeur/>} />
                 <Route path="/client/history" element={<History/>} />
-                 <Route path="/client/profile" element={<Profile/>} />
+                <Route path="/chauffeur/history" element={<HistoryChauffeur/>} />
+                <Route path="/chauffeur/Profile" element={<ProfileChauffeur/>} />
+                <Route path="/client/profile" element={<Profile/>} />
             </Routes>
         </BrowserRouter>
     );
