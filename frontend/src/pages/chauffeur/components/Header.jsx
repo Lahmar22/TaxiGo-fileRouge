@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export default function Header({ setOpenSidebar }) {
+export default function Header({page, setOpenSidebar }) {
 
     const [online, setOnline] = useState(true);
 
@@ -34,7 +34,7 @@ export default function Header({ setOpenSidebar }) {
 
                 {/* Title */}
                 <div>
-                    <h1 className="text-slate-900 font-bold text-lg">Tableau de bord</h1>
+                    <h1 className="text-slate-900 font-bold text-lg">{page}</h1>
                     <p className="text-slate-400 text-xs capitalize">{today}</p>
                 </div>
 
