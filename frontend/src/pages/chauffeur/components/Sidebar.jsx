@@ -24,8 +24,8 @@ export default function Sidebar({ open, setOpen }) {
 
             <aside
                 className={`
-                    fixed lg:static top-0 left-0 z-40
-                    h-screen lg:h-auto
+                    fixed lg:sticky top-0 left-0 z-40
+                    h-screen
                     w-72 lg:w-64
                     bg-linear-to-b from-slate-900 to-[#1a2744]
                     border-r border-white/10 flex flex-col
@@ -61,7 +61,7 @@ export default function Sidebar({ open, setOpen }) {
                                 Ahmed Karimi
                             </p>
                             <p className="text-slate-400 text-xs">
-                                Client Premium
+                                Chauffeur
                             </p>
                         </div>
                     </div>
@@ -92,7 +92,7 @@ export default function Sidebar({ open, setOpen }) {
                         </p>
                     </div>
 
-                    <Link to="/client/profile" className={linkStyle("/client/profile")}>
+                    <Link to="/chauffeur/profile" className={linkStyle("/client/profile")}>
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
                                 d="M5.121 17.804A7.5 7.5 0 0112 15a7.5 7.5 0 016.879 2.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
