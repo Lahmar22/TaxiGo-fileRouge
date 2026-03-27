@@ -1,6 +1,14 @@
 import { Link, useLocation } from "react-router-dom";
 import imagelogo from "../../../assets/TaxiGo.png";
 import { logout } from "../../../api/AuthAPI";
+import { GiCash } from "react-icons/gi";
+import { FaHistory } from "react-icons/fa";
+import { MdDashboard } from "react-icons/md";
+import { CgProfile } from "react-icons/cg";
+import { IoIosLogOut } from "react-icons/io";
+
+
+
 
 export default function Sidebar({ open, setOpen }) {
 
@@ -71,32 +79,22 @@ export default function Sidebar({ open, setOpen }) {
                 <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
 
                     <Link to="/chauffeur/dashboard" className={linkStyle("/chauffeur/dashboard")}>
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                                d="M3 13h8V3H3v10zM13 21h8v-6h-8v6zM13 3v8h8V3h-8zM3 21h8v-6H3v6z" />
-                        </svg>
+                        <MdDashboard className="w-5 h-5"/>
                         Tableau de bord
                     </Link>
 
                     <Link to="/chauffeur/history" className={linkStyle("/chauffeur/history")}>
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                                d="M12 8v4l3 3M12 4a8 8 0 108 8" />
-                        </svg>
+                        <FaHistory className="w-5 h-5" />
                         Historique
                     </Link>
 
-                    <div className="pt-6">
-                        <p className="text-slate-500 text-xs font-semibold uppercase tracking-widest px-2 mb-3">
-                            Compte
-                        </p>
-                    </div>
+                    <Link to="/chauffeur/revenus" className={linkStyle("/chauffeur/revenus")}>
+                        <GiCash className="w-5 h-5"/>
+                        Revenus
+                    </Link>
 
-                    <Link to="/chauffeur/profile" className={linkStyle("/client/profile")}>
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                                d="M5.121 17.804A7.5 7.5 0 0112 15a7.5 7.5 0 016.879 2.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
+                    <Link to="/chauffeur/profile" className={linkStyle("/chauffeur/profile")}>
+                        <CgProfile className="w-5 h-5"/>
                         Mon profil
                     </Link>
 
@@ -108,10 +106,8 @@ export default function Sidebar({ open, setOpen }) {
                         onClick={logout}
                         className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-red-400 hover:text-red-300 hover:bg-red-500/10 transition w-full"
                     >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1m0-10V3" />
-                        </svg>
+                        <IoIosLogOut className="w-5 h-5" />
+                           
                         Déconnexion
                     </button>
                 </div>

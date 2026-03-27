@@ -41,7 +41,7 @@ export default function Dashboard() {
                             Bonjour, <span className="text-amber-500">Ahmed</span>
                         </h2>
                         <p className="text-slate-500">
-                            Voici vos courses disponibles aujourd’hui
+                            Courses disponibles pour le chauffeur aujourd’hui :
                         </p>
                     </div>
 

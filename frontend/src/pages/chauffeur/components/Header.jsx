@@ -34,7 +34,7 @@ export default function Header({page, setOpenSidebar }) {
 
                 {/* Title */}
                 <div>
-                    <h1 className="text-slate-900 font-bold text-lg">{page}</h1>
+                    <h1 className="text-slate-900 font-bold text-sm lg:text-lg">{page}</h1>
                     <p className="text-slate-400 text-xs capitalize">{today}</p>
                 </div>
 
