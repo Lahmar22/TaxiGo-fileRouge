@@ -9,6 +9,12 @@ import History from "../pages/client/History";
 import Profile from "../pages/client/Profile";
 import HistoryChauffeur from "../pages/chauffeur/History";
 import ProfileChauffeur from "../pages/chauffeur/Profile";
+import Revenus from "../pages/chauffeur/Revenus";
+import Utilisateurs from "../pages/admin/Utilisateurs";
+import Reclamations from "../pages/admin/Reclamations";
+import Chauffeurs from "../pages/admin/Chauffeurs";
+import Courses from "../pages/admin/Courses";
+import ProfilAdmin from "../pages/admin/Profile";
 
 export default function Router() {
     return (
@@ -17,13 +23,23 @@ export default function Router() {
                 <Route path="/" element={<Home />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register/>} />
+
                 <Route path="/client/dashboard" element={<DashboardClient/>} />
-                <Route path="/admin/dashboard" element={<DashboardAdmin/>} />
-                <Route path="/chauffeur/dashboard" element={<DashboardChauffeur/>} />
+                <Route path="/client/profile" element={<Profile/>} />
                 <Route path="/client/history" element={<History/>} />
+                
                 <Route path="/chauffeur/history" element={<HistoryChauffeur/>} />
                 <Route path="/chauffeur/Profile" element={<ProfileChauffeur/>} />
-                <Route path="/client/profile" element={<Profile/>} />
+                <Route path="/chauffeur/revenus" element={<Revenus/>} />
+                <Route path="/chauffeur/dashboard" element={<DashboardChauffeur/>} />
+
+                <Route path="/admin/dashboard" element={<DashboardAdmin/>} />
+                <Route path="/admin/utilisateurs" element={<Utilisateurs/>} />
+                <Route path="/admin/reclamations" element={<Reclamations/>} />
+                <Route path="/admin/chauffeurs" element={<Chauffeurs/>} />
+                <Route path="/admin/courses" element={<Courses/>} />
+                <Route path="/admin/profile" element={<ProfilAdmin/>} />
+                
             </Routes>
         </BrowserRouter>
     );
