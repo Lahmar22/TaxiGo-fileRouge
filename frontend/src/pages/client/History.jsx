@@ -4,6 +4,7 @@ import { useState } from "react";
 export default function History() {
     const [filter, setFilter] = useState("all");
     const [search, setSearch] = useState("");
+    const [openSidebar, setOpenSidebar] = useState(false);
 
     const trips = [
         {
@@ -59,13 +60,13 @@ export default function History() {
     return (
         <div className="flex min-h-screen bg-slate-100">
 
-            <Sidebar />
+            <Sidebar open={openSidebar} setOpen={setOpenSidebar} />
 
-            <div className="flex flex-col flex-1 lg:ml-64">
+            <div className="flex flex-col flex-1">
 
-                <Header page="History" />
+                <Header page="Historique" setOpenSidebar={setOpenSidebar} />
 
-                <main className="p-6 lg:p-8 max-w-6xl w-full mx-auto">
+                <main className="flex-1 p-6 space-y-6">
 
                     {/* PAGE HEADER */}
                     <div className="mb-8">

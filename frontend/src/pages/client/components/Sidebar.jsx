@@ -1,6 +1,10 @@
 import { Link, useLocation } from "react-router-dom";
 import imagelogo from "../../../assets/TaxiGo.png";
 import { logout } from "../../../api/AuthAPI";
+import { MdDashboard } from "react-icons/md";
+import { CgProfile } from "react-icons/cg";
+import { IoIosLogOut } from "react-icons/io";
+import { FaHistory } from "react-icons/fa";
 
 export default function Sidebar({ open, setOpen }) {
 
@@ -20,7 +24,17 @@ export default function Sidebar({ open, setOpen }) {
         className={`fixed inset-0 bg-black/40 backdrop-blur-sm z-30 transition lg:hidden
                 ${open ? "opacity-100 visible" : "opacity-0 invisible"}`}
       />
-      <aside className={`bg-linear-to-b from-slate-900 to-[#1a2744] border-r border-white/10 min-h-screen w-64 flex flex-col fixed top-0 left-0 z-40 ${open ? "translate-x-0" : "-translate-x-full"}`}>
+      <aside className={`
+                    fixed lg:sticky top-0 left-0 z-40
+                    h-screen
+                    w-72 lg:w-64
+                    bg-linear-to-b from-slate-900 to-[#1a2744]
+                    border-r border-white/10 flex flex-col
+                    transform transition duration-300
+
+                    ${open ? "translate-x-0" : "-translate-x-full"}
+                    lg:translate-x-0
+                `}>
 
         {/* Logo */}
         <div className="py-6 border-b border-white/10">
@@ -59,10 +73,7 @@ export default function Sidebar({ open, setOpen }) {
           {/* Dashboard */}
           <Link to="/client/dashboard" className={linkStyle("/dashboard")}>
 
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                d="M3 13h8V3H3v10zM13 21h8v-6h-8v6zM13 3v8h8V3h-8zM3 21h8v-6H3v6z" />
-            </svg>
+            <MdDashboard className="w-5 h-5" />
 
             Tableau de bord
           </Link>
@@ -70,10 +81,7 @@ export default function Sidebar({ open, setOpen }) {
           {/* History */}
           <Link to="/client/history" className={linkStyle("/history")}>
 
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                d="M12 8v4l3 3M12 4a8 8 0 108 8" />
-            </svg>
+            <FaHistory className="w-5 h-5" />
 
             Historique
           </Link>
@@ -88,10 +96,7 @@ export default function Sidebar({ open, setOpen }) {
           {/* Profile */}
           <Link to="/client/profile" className={linkStyle("/profile")}>
 
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                d="M5.121 17.804A7.5 7.5 0 0112 15a7.5 7.5 0 016.879 2.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
+            <CgProfile className="w-5 h-5" />
 
             Mon profil
           </Link>
@@ -103,11 +108,7 @@ export default function Sidebar({ open, setOpen }) {
 
           <button onClick={logout} className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-red-400 hover:text-red-300 hover:bg-red-500/10 transition w-full">
 
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1m0-10V3" />
-            </svg>
-
+            <IoIosLogOut className="w-5 h-5" />
             Déconnexion
           </button>
 

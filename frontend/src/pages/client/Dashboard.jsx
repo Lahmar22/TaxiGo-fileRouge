@@ -1,6 +1,5 @@
-import Footer from "../../components/Footer";
-import Sidebar from "./components/Sidebar";
-import Header from "./components/Header";
+import Sidebar from "../client/components/Sidebar";
+import Header from "../client/components/Header";
 import { useState, useEffect } from "react";
 import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
 
@@ -26,27 +25,24 @@ export default function Dashboard() {
     );
   }, []);
   const { isLoaded } = useLoadScript({
-    googleMapsApiKey: "YOUR_GOOGLE_MAPS_API_KEY", 
+    googleMapsApiKey: "YOUR_GOOGLE_MAPS_API_KEY",
   });
-  
-  const { latitude, longitude, error } = location;
-  if (!isLoaded) return <p></p>;
-  if (error) return <p>{error}</p>;
+
+
 
   return (
     <div className="flex min-h-screen bg-slate-100">
 
       <Sidebar open={openSidebar} setOpen={setOpenSidebar} />
 
-      <div className="flex flex-col flex-1 lg:ml-64">
+      <div className="flex flex-col flex-1">
 
         <Header page="Tableau de bord" setOpenSidebar={setOpenSidebar} />
-
 
         <main className="flex-1 p-6 space-y-6">
           <div className="mb-8 animate-fade-up">
             <h2 className="text-3xl font-black text-slate-900">
-              Bonjour, <span className="gradient-text">Ahmed</span> 👋
+              Bonjour, <span className="gradient-text">Ahmed</span>
             </h2>
             <p className="text-slate-500 mt-1">Prêt pour votre prochaine course ?</p>
           </div>
@@ -163,16 +159,22 @@ export default function Dashboard() {
 
             <div className="xl:col-span-3 space-y-6">
 
-              <div className="bg-linear-to-br from-slate-200 to-slate-100 rounded-lg flex items-center justify-center relative overflow-hidden h-125">
+              <div className="bg-linear-to-br from-slate-200 to-slate-100 rounded-lg h-125">
 
-                <GoogleMap
-                  mapContainerStyle={{ width: "100%", height: "100%" }}
-                  center={location}
-                  zoom={15}
-                >
-                  <Marker position={location} />
-                </GoogleMap>
+                {!isLoaded ? (
+                  <p className="p-4">Chargement de la carte...</p>
+                ) : (
+                  <GoogleMap
+                    mapContainerStyle={{ width: "100%", height: "100%" }}
+                    center={location || { lat: 33.5731, lng: -7.5898 }}
+                    zoom={15}
+                  >
+                    {location && <Marker position={location} />}
+                  </GoogleMap>
+                )}
+
               </div>
+
 
 
             </div>
