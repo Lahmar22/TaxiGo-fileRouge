@@ -10,21 +10,13 @@ use App\Models\User;
 use App\Models\Client;
 use App\Models\Chauffeur;
 use App\Models\Administrateur;
+use App\Models\Role;
+use App\Http\Requests\RegisterRequest;
 
 class AuthController extends Controller
 {
-    public function register(Request $request){
-        $inputs = $request->validate([
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'email' => 'required|string|email|unique:users',
-            'number_phone' => 'required|string|max:20',
-            'password' => 'required|string|min:6',
-        ]);
-
-
+    public function register(RegisterRequest $request){
         
-
         $user = User::create([
             'first_name' => $request->first_name,
             'last_name' => $request->last_name,
@@ -33,7 +25,24 @@ class AuthController extends Controller
             'password' => Hash::make( $request->password),
         ]);
 
-        Client::create(['user_id' => $user->id]);
+        switch ($request->role) {
+            case 'client':
+                Client::create(['user_id' => $user->id]);
+                Role::create(['role_name' => 'client', 'user_id' => $user->id]);
+                break;
+            case 'chauffeur':
+                Chauffeur::create(['user_id' => $user->id]);
+                Role::create(['role_name' => 'chauffeur', 'user_id' => $user->id]);
+                break;
+            case 'admin':
+                Administrateur::create(['user_id' => $user->id]);
+                Role::create(['role_name' => 'admin', 'user_id' => $user->id]);
+                break;
+
+            default:
+                
+                break;
+        }
 
         return response()->json([
             'success' => true,
