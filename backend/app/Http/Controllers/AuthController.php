@@ -72,18 +72,13 @@ class AuthController extends Controller
 
         $token = $user->createToken('api-token')->plainTextToken;
 
-        $client = Client::where('user_id', $user->id)->exists();
-        $admin = Administrateur::where('user_id', $user->id)->exists();
-        $chauffeur = Chauffeur::where('user_id', $user->id)->exists();
+        $user = User::with('role')->find($user->id);
+        
 
         
 
-        if($client){
-            $role = 'client';
-        }elseif($chauffeur){
-            $role = 'chauffeur';
-        }elseif($admin){
-            $role = 'admin';
+        if($user->role){
+            $role = $user->role->role_name;
         }else{
             return response()->json(['message' => 'User role not found'], 404);
         }
@@ -91,7 +86,6 @@ class AuthController extends Controller
        return response()->json([
             'success' => true,
             'user' => $user,
-            'role' => $role,
             'token' => $token
         ], 201); 
 
