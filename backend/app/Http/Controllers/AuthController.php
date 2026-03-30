@@ -67,20 +67,22 @@ class AuthController extends Controller
             ],401);
 
         }
-        
+
         $user = Auth::user();
 
+        if($user->banned) {
+            Auth::logout();
+            return response()->json([
+                'message' => 'Votre compte est suspendu (banni), veuillez contacter l\'administrateur pour plus d\'informations.'
+            ], 403);
+        }
+        
         $token = $user->createToken('api-token')->plainTextToken;
 
-        $user = User::with('role')->find($user->id);
-        
-
-        
-
-        if($user->role){
-            $role = $user->role->role_name;
-        }else{
-            return response()->json(['message' => 'User role not found'], 404);
+        if (!$user->role) {
+            return response()->json([
+                'message' => 'User role not found'
+            ], 404);
         }
 
        return response()->json([
