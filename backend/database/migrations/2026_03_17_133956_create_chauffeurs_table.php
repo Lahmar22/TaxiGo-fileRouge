@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('chauffeurs', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->boolean('status')->default(false);
+            $table->boolean('status')->default(true);
             $table->string('number_permis');
             $table->string('vehicule');
             $table->double('revenu_total', 8, 2)->default(0);
