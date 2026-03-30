@@ -56,6 +56,11 @@ class User extends Authenticatable
         return $this->hasOne(Client::class);
     }
 
+    public function chauffeur()
+    {
+        return $this->hasOne(Chauffeur::class);
+    }
+
     public function role()
     {
         return $this->hasOne(Role::class);
