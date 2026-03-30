@@ -31,7 +31,11 @@ class AuthController extends Controller
                 Role::create(['role_name' => 'client', 'user_id' => $user->id]);
                 break;
             case 'chauffeur':
-                Chauffeur::create(['user_id' => $user->id]);
+                Chauffeur::create([
+                    'user_id' => $user->id,
+                    'number_permit' => $request->number_permit,
+                    'vehicule' => $request->vehicule,
+                ]);
                 Role::create(['role_name' => 'chauffeur', 'user_id' => $user->id]);
                 break;
             case 'admin':
