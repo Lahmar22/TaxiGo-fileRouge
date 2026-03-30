@@ -18,7 +18,7 @@ class ChauffeurController extends Controller
     public function validateChauffeur($id)
     {
         $chauffeur = Chauffeur::findOrFail($id);
-        $chauffeur->status = 'valide';
+        $chauffeur->validate = true;
         $chauffeur->save();
 
         return response()->json([
@@ -30,12 +30,15 @@ class ChauffeurController extends Controller
     public function updateStatus($id)
     {
         $chauffeur = Chauffeur::findOrFail($id);
-        $chauffeur->status = 'refusé';
+       if ($chauffeur->status) {
+            $chauffeur->status = false;
+        } else {
+            $chauffeur->status = true;
+        }
         $chauffeur->save();
 
         return response()->json([
-            'message' => 'Chauffeur refusé avec succès',
-            'chauffeur' => $chauffeur
+            'message' => 'Statut mis à jour avec succès'
         ]);
     }
 }
