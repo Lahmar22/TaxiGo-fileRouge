@@ -15,6 +15,14 @@ class UserController extends Controller
         ]);
     }
 
+    public function show($id)
+    {
+        $user = User::with('role')->findOrFail($id);
+        return response()->json([
+            'user' => $user
+        ]);
+    }
+
     public function banned($id)
     {
         $user = User::findOrFail($id);
