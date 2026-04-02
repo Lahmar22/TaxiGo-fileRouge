@@ -22,9 +22,9 @@ export default function Login() {
 
         try {
             const response = await axios.post("http://127.0.0.1:8000/api/login", form);
-            console.log(response.data.user)
-            const role = response.data.role;
+            const role = response.data.user.role.role_name;
             localStorage.setItem("token", response.data.token);
+            localStorage.setItem("user", JSON.stringify(response.data.user));
             if (response.data.success) {
                 if(role == "client"){
                     navigate("/client/dashboard");

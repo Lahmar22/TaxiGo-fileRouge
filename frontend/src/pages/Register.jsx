@@ -5,13 +5,19 @@ import { useNavigate } from "react-router-dom";
 
 export default function Register() {
     const navigate = useNavigate();
+
     const [form, setForm] = useState({
         first_name: "",
         last_name: "",
         email: "",
         number_phone: "",
         password: "",
+        role: "",
+        permis_number: "",
+        vehicule_matricule: "",
+        vehicule_modele: "",
     });
+
     const [message, setMessage] = useState("");
 
     const handleChange = (e) => {
@@ -20,23 +26,26 @@ export default function Register() {
             [e.target.name]: e.target.value,
         });
     };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         try {
-            const response = await axios.post("http://127.0.0.1:8000/api/register", form);
-
+            const response = await axios.post(
+                "http://127.0.0.1:8000/api/register",
+                form
+            );
 
             if (response.data.success) {
                 navigate("/login");
             }
-
         } catch (error) {
             if (error.response) {
                 console.log(error.response.data);
             }
         }
     };
+
     return (
         <div className="min-h-screen flex items-center justify-center bg-linear-to-b from-white via-slate-50 to-slate-100 p-6">
 
@@ -54,7 +63,6 @@ export default function Register() {
                 <form className="space-y-4" onSubmit={handleSubmit}>
 
                     <div className="grid md:grid-cols-2 gap-4">
-
                         <input
                             type="text"
                             name="first_name"
@@ -70,7 +78,6 @@ export default function Register() {
                             onChange={handleChange}
                             className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-yellow-400 focus:outline-none"
                         />
-
                     </div>
 
                     <input
@@ -97,7 +104,50 @@ export default function Register() {
                         className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-yellow-400 focus:outline-none"
                     />
 
-                    <button type="submit" className="w-full bg-linear-to-r from-yellow-500 to-amber-600 text-white py-3 rounded-xl font-semibold hover:shadow-lg transition">
+                    {/* ROLE */}
+                    <select
+                        name="role"
+                        onChange={handleChange}
+                        className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-yellow-400 focus:outline-none"
+                    >
+                        <option value="">Sélectionnez un rôle</option>
+                        <option value="client">Client</option>
+                        <option value="chauffeur">Chauffeur</option>
+                    </select>
+
+                    {/* 🔥 AFFICHAGE CONDITIONNEL */}
+                    {form.role === "chauffeur" && (
+                        <>
+                            <input
+                                type="text"
+                                name="permis_number"
+                                placeholder="Numéro de permis"
+                                onChange={handleChange}
+                                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-yellow-400 focus:outline-none"
+                            />
+
+                            <input
+                                type="text"
+                                name="vehicule_matricule"
+                                placeholder="Matricule véhicule"
+                                onChange={handleChange}
+                                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-yellow-400 focus:outline-none"
+                            />
+
+                            <input
+                                type="text"
+                                name="vehicule_modele"
+                                placeholder="Modèle véhicule"
+                                onChange={handleChange}
+                                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-yellow-400 focus:outline-none"
+                            />
+                        </>
+                    )}
+
+                    <button
+                        type="submit"
+                        className="w-full bg-linear-to-r from-yellow-500 to-amber-600 text-white py-3 rounded-xl font-semibold hover:shadow-lg transition"
+                    >
                         S'inscrire
                     </button>
 
