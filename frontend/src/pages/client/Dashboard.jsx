@@ -1,6 +1,7 @@
 import Sidebar from "../client/components/Sidebar";
 import Header from "../client/components/Header";
 import { useState, useEffect } from "react";
+import axios from "axios";
 import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
 
 
@@ -8,6 +9,7 @@ export default function Dashboard() {
   const [location, setLocation] = useState({ lat: 0, lng: 0 });
   const [locationError, setLocationError] = useState(null);
   const [openSidebar, setOpenSidebar] = useState(false);
+  
   useEffect(() => {
     if (!navigator.geolocation) {
       setError("Géolocalisation non supportée");
@@ -25,10 +27,10 @@ export default function Dashboard() {
     );
   }, []);
   const { isLoaded } = useLoadScript({
-    googleMapsApiKey: "YOUR_GOOGLE_MAPS_API_KEY",
+    googleMapsApiKey: "AIzaSyBwR8BX_A2S9FEO3aDRXyW4vTjFgJKvmrU",
   });
 
-
+  const user = JSON.parse(localStorage.getItem("user"));
 
   return (
     <div className="flex min-h-screen bg-slate-100">
@@ -42,7 +44,7 @@ export default function Dashboard() {
         <main className="flex-1 p-6 space-y-6">
           <div className="mb-8 animate-fade-up">
             <h2 className="text-3xl font-black text-slate-900">
-              Bonjour, <span className="gradient-text">Ahmed</span>
+              Bonjour, <span className="gradient-text">{user.first_name} {user.last_name}</span>
             </h2>
             <p className="text-slate-500 mt-1">Prêt pour votre prochaine course ?</p>
           </div>
@@ -166,7 +168,7 @@ export default function Dashboard() {
                 ) : (
                   <GoogleMap
                     mapContainerStyle={{ width: "100%", height: "100%" }}
-                    center={location || { lat: 33.5731, lng: -7.5898 }}
+                    center={location || { lat: 0, lng: 0 }}
                     zoom={15}
                   >
                     {location && <Marker position={location} />}

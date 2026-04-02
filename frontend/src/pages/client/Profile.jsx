@@ -2,17 +2,12 @@ import Sidebar from "../client/components/Sidebar";
 import Header from "../client/components/Header";
 import { useState } from "react";
 
-export default function Profile() {
-  const [form, setForm] = useState({
-    name: "Ahmed Benali",
-    email: "ahmed@email.com",
-    phone: "+212 600000000",
-    city: "Marrakech",
-  });
+export default function Profile() { 
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
+  const user = JSON.parse(localStorage.getItem("user"));
 
   return (
     <div className="flex min-h-screen bg-linear-to-br from-slate-100 to-slate-200">
@@ -20,7 +15,7 @@ export default function Profile() {
       {/* Sidebar */}
       <Sidebar page="profile" />
 
-      <div className="flex flex-col flex-1 lg:ml-64">
+      <div className="flex flex-col flex-1">
 
         {/* Header */}
         <Header page="Profil" />
@@ -67,13 +62,13 @@ export default function Profile() {
               {/* Info */}
               <div className="flex-1 sm:text-left">
                 <div className="flex flex-col sm:flex-row gap-3 mb-2">
-                  <h3 className="text-white text-2xl font-black">Ahmed Karimi</h3>
+                  <h3 className="text-white text-2xl font-black">{user.first_name} {user.last_name}</h3>
                 </div>
                 <p className="text-slate-400 text-sm mb-1">
-                  ahmed.karimi@email.com · +212 6 12 34 56 78
+                  {user.email} · {user.number_phone}
                 </p>
                 <p className="text-slate-500 text-xs mb-5">
-                  Membre depuis Janvier 2025 · Casablanca, Maroc
+                  Membre depuis {new Date(user.created_at).toLocaleDateString("fr-FR", { year: "numeric", month: "long", day: "numeric" })}
                 </p>
 
                 {/* Quick stats */}
@@ -120,12 +115,10 @@ export default function Profile() {
 
             <div className="grid sm:grid-cols-2 gap-4">
               {[
-                { label: "Prénom", value: "Ahmed" },
-                { label: "Nom", value: "Karimi" },
-                { label: "Email", value: "ahmed.karimi@email.com" },
-                { label: "Téléphone", value: "+212 6 12 34 56 78" },
-                { label: "Ville", value: "Casablanca" },
-                { label: "Date de naissance", value: "1992-05-15", type: "date" },
+                { label: "Prénom", value: user.first_name },
+                { label: "Nom", value: user.last_name },
+                { label: "Email", value: user.email },
+                { label: "Téléphone", value: user.number_phone },
               ].map((field, idx) => (
                 <div key={idx}>
                   <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">

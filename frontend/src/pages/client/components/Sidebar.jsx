@@ -9,6 +9,7 @@ import { FaHistory } from "react-icons/fa";
 export default function Sidebar({ open, setOpen }) {
 
   const location = useLocation();
+  const user = JSON.parse(localStorage.getItem("user"));
 
   const linkStyle = (path) =>
     `flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition
@@ -49,7 +50,7 @@ export default function Sidebar({ open, setOpen }) {
 
             <div className="relative">
               <div className="w-10 h-10 bg-linear-to-br from-yellow-400 to-amber-500 rounded-full flex items-center justify-center font-bold text-slate-900 text-sm">
-                AK
+                {user.first_name.charAt(0)}{user.last_name.charAt(0)}
               </div>
 
               <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-400 border-2 border-slate-900 rounded-full"></span>
@@ -57,10 +58,10 @@ export default function Sidebar({ open, setOpen }) {
 
             <div>
               <p className="text-white font-semibold text-sm">
-                Ahmed Karimi
+                {user.first_name} {user.last_name}
               </p>
               <p className="text-slate-400 text-xs">
-                Client Premium
+                {user.role.role_name}
               </p>
             </div>
 
