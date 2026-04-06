@@ -13,36 +13,58 @@ export default function Register() {
         number_phone: "",
         password: "",
         role: "",
-        permis_number: "",
-        vehicule_matricule: "",
-        vehicule_modele: "",
+        permis: "",
+        carte_grise: "",
     });
 
     const [message, setMessage] = useState("");
 
     const handleChange = (e) => {
-        setForm({
-            ...form,
-            [e.target.name]: e.target.value,
-        });
+        const { name, value, files } = e.target;
+
+        setForm((prev) => ({
+            ...prev,
+            [name]: files ? files[0] : value,
+        }));
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        const data = new FormData();
+
+        data.append("first_name", form.first_name);
+        data.append("last_name", form.last_name);
+        data.append("email", form.email);
+        data.append("number_phone", form.number_phone);
+        data.append("password", form.password);
+        data.append("role", form.role);
+
+        // fichiers
+        if (form.permis) {
+            data.append("permis", form.permis);
+        }
+
+        if (form.carte_grise) {
+            data.append("carte_grise", form.carte_grise);
+        }
+
         try {
             const response = await axios.post(
                 "http://127.0.0.1:8000/api/register",
-                form
+                data,
+                {
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                    },
+                }
             );
 
             if (response.data.success) {
                 navigate("/login");
             }
         } catch (error) {
-            if (error.response) {
-                console.log(error.response.data);
-            }
+            console.log(error.response.data);
         }
     };
 
@@ -66,7 +88,7 @@ export default function Register() {
                         <input
                             type="text"
                             name="first_name"
-                            placeholder="Nom"
+                            placeholder="Prénom"
                             onChange={handleChange}
                             className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-yellow-400 focus:outline-none"
                         />
@@ -74,7 +96,7 @@ export default function Register() {
                         <input
                             type="text"
                             name="last_name"
-                            placeholder="Prénom"
+                            placeholder="Nom"
                             onChange={handleChange}
                             className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-yellow-400 focus:outline-none"
                         />
@@ -115,32 +137,37 @@ export default function Register() {
                         <option value="chauffeur">Chauffeur</option>
                     </select>
 
-                    {/* 🔥 AFFICHAGE CONDITIONNEL */}
                     {form.role === "chauffeur" && (
-                        <>
-                            <input
-                                type="text"
-                                name="permis_number"
-                                placeholder="Numéro de permis"
-                                onChange={handleChange}
-                                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-yellow-400 focus:outline-none"
-                            />
+                        <><div className="space-y-4">
+                            {/* Permis */}
+                            <div>
+                                <label htmlFor="permis" className="block mb-1 font-medium">
+                                    Permis de conduire
+                                </label>
+                                <input
+                                    type="file"
+                                    id="permis"
+                                    name="permis"
+                                    onChange={handleChange}
+                                    className="w-full px-4 py-2 rounded-xl border border-slate-200 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-yellow-400 file:text-white hover:file:bg-yellow-500"
+                                />
+                            </div>
 
-                            <input
-                                type="text"
-                                name="vehicule_matricule"
-                                placeholder="Matricule véhicule"
-                                onChange={handleChange}
-                                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-yellow-400 focus:outline-none"
-                            />
+                            {/* Carte grise */}
+                            <div>
+                                <label htmlFor="carte_grise" className="block mb-1 font-medium">
+                                    Carte grise
+                                </label>
+                                <input
+                                    type="file"
+                                    id="carte_grise"
+                                    name="carte_grise"
+                                    onChange={handleChange}
+                                    className="w-full px-4 py-2 rounded-xl border border-slate-200 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-yellow-400 file:text-white hover:file:bg-yellow-500"
+                                />
+                            </div>
+                        </div>
 
-                            <input
-                                type="text"
-                                name="vehicule_modele"
-                                placeholder="Modèle véhicule"
-                                onChange={handleChange}
-                                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-yellow-400 focus:outline-none"
-                            />
                         </>
                     )}
 
