@@ -11,6 +11,7 @@ use App\Models\Client;
 use App\Models\Chauffeur;
 use App\Models\Administrateur;
 use App\Models\Role;
+use App\Models\Vehicule;
 use App\Http\Requests\RegisterRequest;
 
 class AuthController extends Controller
@@ -31,12 +32,13 @@ class AuthController extends Controller
                 Role::create(['role_name' => 'client', 'user_id' => $user->id]);
                 break;
             case 'chauffeur':
-                Chauffeur::create([
-                    'user_id' => $user->id,
-                    'number_permit' => $request->number_permit,
-                    'vehicule' => $request->vehicule,
-                ]);
+                Chauffeur::create(['user_id' => $user->id]);
                 Role::create(['role_name' => 'chauffeur', 'user_id' => $user->id]);
+                Vehicule::create([
+                    'permis' => $request->file('permis')->store('permis', 'public'),
+                    'carte_grise' => $request->file('carte_grise')->store('carte_grise', 'public'),
+                    'chauffeur_id' => Chauffeur::where('user_id', $user->id)->first()->id,
+                ]);
                 break;
             case 'admin':
                 Administrateur::create(['user_id' => $user->id]);

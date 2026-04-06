@@ -9,7 +9,7 @@ class ChauffeurController extends Controller
 {
     public function index()
     {
-        $chauffeurs = Chauffeur::with('user')->get();
+        $chauffeurs = Chauffeur::with('user', 'vehicule')->get();
         return response()->json([
             'chauffeurs' => $chauffeurs
         ]);
