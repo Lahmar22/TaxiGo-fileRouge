@@ -1,50 +1,40 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "../chauffeur/components/Header";
 import Sidebar from "../chauffeur/components/Sidebar";
+import axios from "axios";
 
-const MOCK_RESERVATIONS = [
-    {
-        id: 1,
-        client: "Youssef B.",
-        pickup: "Médina, Rabat",
-        dest: "Agdal, Rabat",
-        fare: "55 MAD",
-        status: "pending",
-    },
-    {
-        id: 2,
-        client: "Sara M.",
-        pickup: "Hassan, Rabat",
-        dest: "Hay Riad, Rabat",
-        fare: "78 MAD",
-        status: "accepted",
-    },
-    {
-        id: 3,
-        client: "Karim A.",
-        pickup: "Souissi, Rabat",
-        dest: "Centre-Ville, Salé",
-        fare: "95 MAD",
-        status: "refused",
-    },
-];
+
 
 export default function History() {
     const [openSidebar, setOpenSidebar] = useState(false);
-    const [reservations, setReservations] = useState(MOCK_RESERVATIONS);
+    const [courses, setCourses] = useState([]);
     const [filter, setFilter] = useState("all");
+    const user = JSON.parse(localStorage.getItem("user"));
+    const token = localStorage.getItem("token");
 
-    const filteredReservations =
+    useEffect(() => {
+        axios.get("http://127.0.0.1:8000/api/courses", {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+            .then(res => {
+                setCourses(res.data.courses)
+            })
+            .catch(err => console.log(err));
+    }, []);
+
+    const filteredCourses =
         filter === "all"
-            ? reservations
-            : reservations.filter((r) => r.status === filter);
+            ? courses
+            : courses.filter((r) => r.status === filter);
 
     // ── Stats ─────────────────────────
     const stats = {
-        total: reservations.length,
-        pending: reservations.filter((r) => r.status === "pending").length,
-        accepted: reservations.filter((r) => r.status === "accepted").length,
-        refused: reservations.filter((r) => r.status === "refused").length,
+        total: courses.length,
+        pending: courses.filter((r) => r.status === "pending").length,
+        accepted: courses.filter((r) => r.status === "accepted").length,
+        refused: courses.filter((r) => r.status === "refused").length,
     };
 
     const styles = {
@@ -64,7 +54,7 @@ export default function History() {
                         {/* Greeting */}
                         <div className="mb-6">
                             <h2 className="text-2xl font-black text-slate-900">
-                                Bonjour, <span className="text-amber-500">Ahmed</span>
+                                Bonjour, <span className="text-amber-500">{user.first_name} {user.last_name}</span>
                             </h2>
                         </div>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
@@ -94,28 +84,28 @@ export default function History() {
                             ))}
                         </div>
                         <div className="grid gap-4">
-                            {filteredReservations.length > 0 ? (
-                                filteredReservations.map((res) => (
+                            {filteredCourses.length > 0 ? (
+                                filteredCourses.map((course) => (
                                     <div
-                                        key={res.id}
+                                        key={course.id}
                                         className="bg-white p-4 rounded-2xl shadow flex flex-col md:flex-row md:items-center md:justify-between"
                                     >
                                         {/* Info */}
                                         <div>
                                             <h3 className="font-bold text-lg text-slate-800">
-                                                {res.client}
+                                                {course.client}
                                             </h3>
                                             <p className="text-sm text-slate-500">
-                                                {res.pickup} → {res.dest}
+                                                {course.pickup} → {course.dest}
                                             </p>
                                             <p className="text-sm font-semibold text-amber-500">
-                                                {res.fare}
+                                                {course.fare}
                                             </p>
                                         </div>
 
                                         <div className="mt-3 md:mt-0 flex gap-2 items-center">
-                                            <span className={styles[res.status] }>
-                                                {res.status}
+                                            <span className={styles[course.status] }>
+                                                {course.status}
                                             </span>
                                         </div>
                                     </div>
@@ -123,7 +113,7 @@ export default function History() {
                             ) : (
                                 <div className="flex items-center justify-center h-64">
                                     <p className="text-slate-500">
-                                        Aucune réservation
+                                        Aucune course trouvée.
                                     </p>
                                 </div>
                             )}

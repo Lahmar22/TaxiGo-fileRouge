@@ -1,12 +1,32 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 
 export default function Header({page, setOpenSidebar }) {
 
     const [online, setOnline] = useState(true);
+    const token = localStorage.getItem("token");
+    const user = JSON.parse(localStorage.getItem("user"));
 
-    const toggleStatus = () => {
-        setOnline(!online);
+
+    const toggleStatus = async (chauffeurId) => {
+        try {
+            const response = await axios.patch(
+                `http://127.0.0.1:8000/api/chauffeur/${chauffeurId}`,
+                {},
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            setOnline(!online);
+
+        } catch (error) {
+            console.error(error);
+        }
     };
+               
 
     const today = new Date().toLocaleDateString("fr-FR", {
         weekday: "long",
@@ -45,7 +65,7 @@ export default function Header({page, setOpenSidebar }) {
 
                 {/* Status */}
                 <button
-                    onClick={toggleStatus}
+                    onClick={() => toggleStatus(user.id)}
                     className={`text-white text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-2 transition
                     ${online
                         ? "bg-linear-to-br from-emerald-500 to-emerald-600"

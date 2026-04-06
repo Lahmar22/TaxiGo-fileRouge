@@ -26,6 +26,7 @@ const MOCK_RESERVATIONS = [
 export default function Dashboard() {
     const [openSidebar, setOpenSidebar] = useState(false);
     const [reservations, setReservations] = useState(MOCK_RESERVATIONS);
+    const user = JSON.parse(localStorage.getItem("user"));
 
 
     return (
@@ -38,7 +39,7 @@ export default function Dashboard() {
                 <main className="flex-1 p-4 lg:p-6">
                     <div className="mb-6">
                         <h2 className="text-2xl font-black text-slate-900">
-                            Bonjour, <span className="text-amber-500">Ahmed</span>
+                            Bonjour, <span className="text-amber-500">{user.first_name} {user.last_name}</span>
                         </h2>
                         <p className="text-slate-500">
                             Courses disponibles pour le chauffeur aujourd’hui :
