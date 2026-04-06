@@ -36,6 +36,7 @@ const coursesData = [
 
 export default function Dashboard() {
     const [openSidebar, setOpenSidebar] = useState(false);
+    const user = JSON.parse(localStorage.getItem("user"));
 
     return (
         <div className="flex min-h-screen bg-slate-100">
@@ -49,7 +50,7 @@ export default function Dashboard() {
                     {/* ── Header ── */}
                     <div className="mb-6">
                         <h2 className="text-2xl font-black text-slate-900">
-                            Bonjour, <span className="text-amber-500">Ahmed</span>
+                            Bonjour, <span className="text-amber-500">{user?.last_name}</span>
                         </h2>
                         <p className="text-slate-500">
                             Analyse des performances de TaxiGo

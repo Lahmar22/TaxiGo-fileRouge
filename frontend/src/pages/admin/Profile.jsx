@@ -3,12 +3,7 @@ import Header from "../admin/components/Header";
 import Sidebar from "../admin/components/Sidebar";
 
 export default function Profile() {
-    const [form, setForm] = useState({
-        name: "Ahmed Benali",
-        email: "ahmed@email.com",
-        phone: "+212 600000000",
-        city: "Marrakech",
-    });
+    const user = JSON.parse(localStorage.getItem("user"));
 
     const [openSidebar, setOpenSidebar] = useState(false);
     return (
@@ -49,20 +44,24 @@ export default function Profile() {
                                 {/* Avatar */}
                                 <div className="avatar-ring shrink-0">
                                     <div className="w-24 h-24 bg-linear-to-br from-yellow-400 to-amber-500 rounded-full flex items-center justify-center font-black text-slate-900 text-3xl">
-                                        AK
+                                        {user.first_name[0]}{user.last_name[0]}
                                     </div>
                                 </div>
 
                                 {/* Info */}
                                 <div className="flex-1 sm:text-left">
                                     <div className="flex flex-col sm:flex-row gap-3 mb-2">
-                                        <h3 className="text-white text-2xl font-black">Ahmed Karimi</h3>
+                                        <h3 className="text-white text-2xl font-black">{user.first_name} {user.last_name}</h3>
                                     </div>
                                     <p className="text-slate-400 text-sm mb-1">
-                                        ahmed.karimi@email.com · +212 6 12 34 56 78
+                                        {user.email} · {user.number_phone}
                                     </p>
                                     <p className="text-slate-500 text-xs mb-5">
-                                        Membre depuis Janvier 2025 · Casablanca, Maroc
+                                        Membre depuis {new Date(user.created_at).toLocaleDateString("fr-FR", {
+                                            day: "numeric",
+                                            month: "long",
+                                            year: "numeric",
+                                        })}
                                     </p>
 
                                     {/* Quick stats */}
@@ -109,12 +108,10 @@ export default function Profile() {
 
                             <div className="grid sm:grid-cols-2 gap-4">
                                 {[
-                                    { label: "Prénom", value: "Ahmed" },
-                                    { label: "Nom", value: "Karimi" },
-                                    { label: "Email", value: "ahmed.karimi@email.com" },
-                                    { label: "Téléphone", value: "+212 6 12 34 56 78" },
-                                    { label: "Ville", value: "Casablanca" },
-                                    { label: "Date de naissance", value: "1992-05-15", type: "date" },
+                                    { label: "Prénom", value: user.first_name },
+                                    { label: "Nom", value: user.last_name },
+                                    { label: "Email", value: user.email },
+                                    { label: "Téléphone", value: user.number_phone },
                                 ].map((field, idx) => (
                                     <div key={idx}>
                                         <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">

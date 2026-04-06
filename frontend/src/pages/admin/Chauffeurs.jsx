@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "../admin/components/Header";
 import Sidebar from "../admin/components/Sidebar";
 import {
@@ -7,50 +7,68 @@ import {
     FaIdCard,
     FaCar
 } from "react-icons/fa";
+import axios from "axios";
 
-// ── Mock demandes chauffeurs ─────────────────────────
-const MOCK_DRIVERS = [
-    {
-        id: 1,
-        name: "Ahmed Ali",
-        email: "ahmed@mail.com",
-        voiture: "Dacia Logan",
-        matricule: "12345-A-6",
-        statut: "en attente"
-    },
-    {
-        id: 2,
-        name: "Khalid Omar",
-        email: "khalid@mail.com",
-        voiture: "Toyota Yaris",
-        matricule: "67890-B-2",
-        statut: "en attente"
-    },
-    {
-        id: 3,
-        name: "Youssef Ben",
-        email: "youssef@mail.com",
-        voiture: "Hyundai i10",
-        matricule: "11223-C-1",
-        statut: "validé"
-    }
-];
 
 export default function ValidationChauffeurs() {
     const [openSidebar, setOpenSidebar] = useState(false);
-    const [drivers, setDrivers] = useState(MOCK_DRIVERS);
+    const [drivers, setDrivers] = useState([]);
+    const token = localStorage.getItem("token");
+    const BASE_URL = "http://127.0.0.1:8000/storage/";
 
-    // ── Actions ─────────────────────────
+
+    useEffect(() => {
+        const fetchDrivers = async () => {
+            try {
+                const res = await axios.get(
+                    "http://127.0.0.1:8000/api/chauffeurs",
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
+                );
+
+                setDrivers(res.data.chauffeurs);
+            } catch (err) {
+                console.error("Erreur lors du chargement des chauffeurs :", err);
+            }
+        };
+
+        fetchDrivers();
+    }, []);
+
+
     const validateDriver = (id) => {
-        setDrivers(drivers.map(d =>
-            d.id === id ? { ...d, statut: "validé" } : d
-        ));
+        axios.patch(`http://127.0.0.1:8000/api/chauffeurs/${id}`, {}, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+            .then(() => {
+                setDrivers(drivers.map(d =>
+                    d.id === id ? { ...d, validate: true } : d
+                ));
+            })
+            .catch((err) => {
+                console.error("Erreur lors de la validation du chauffeur :", err);
+            });
     };
 
     const rejectDriver = (id) => {
-        setDrivers(drivers.map(d =>
-            d.id === id ? { ...d, statut: "refusé" } : d
-        ));
+        axios.patch(`http://127.0.0.1:8000/api/chauffeurs/${id}`, {}, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+            .then(() => {
+                setDrivers(drivers.map(d =>
+                    d.id === id ? { ...d, validate: false } : d
+                ));
+            })
+            .catch((err) => {
+                console.error("Erreur lors du refus de la validation du chauffeur :", err);
+            });
     };
 
     return (
@@ -65,7 +83,7 @@ export default function ValidationChauffeurs() {
                     {/* ── Header ── */}
                     <div className="mb-6">
                         <h2 className="text-2xl font-black text-slate-900">
-                            Validation des chauffeurs 🚗
+                            Validation des chauffeurs 
                         </h2>
                         <p className="text-slate-500">
                             Acceptez ou refusez les demandes d'inscription
@@ -82,34 +100,45 @@ export default function ValidationChauffeurs() {
                                 {/* Infos */}
                                 <div>
                                     <p className="font-semibold text-slate-800">
-                                        {driver.name}
+                                        {driver.user.first_name} {driver.user.last_name}
                                     </p>
                                     <p className="text-sm text-slate-500">
-                                        {driver.email}
+                                        {driver.user.email}
                                     </p>
 
                                     <div className="flex gap-4 mt-2 text-sm text-slate-600">
-                                        <span className="flex items-center gap-1">
-                                            <FaCar /> {driver.voiture}
-                                        </span>
-                                        <span className="flex items-center gap-1">
-                                            <FaIdCard /> {driver.matricule}
-                                        </span>
+                                        <a
+                                            href={`${BASE_URL}${driver.vehicule.carte_grise}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="flex items-center gap-1 text-blue-500"
+                                        >
+                                            <FaCar /> Carte grise
+                                        </a>
+
+                                        <a
+                                            href={`${BASE_URL}${driver.vehicule.permis}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="flex items-center gap-1 text-blue-500"
+                                        >
+                                            <FaIdCard /> Permis
+                                        </a>
                                     </div>
 
                                     {/* Statut */}
                                     <span className={`inline-block mt-2 px-3 py-1 text-xs font-bold rounded-full
-                                        ${driver.statut === "validé"
+                                        ${driver.validate === true
                                             ? "bg-green-100 text-green-600"
-                                            : driver.statut === "refusé"
-                                            ? "bg-red-100 text-red-600"
-                                            : "bg-yellow-100 text-yellow-600"}`}>
-                                        {driver.statut}
+                                            : driver.validate === false
+                                                ? "bg-red-100 text-yellow-600"
+                                                : "bg-yellow-100 text-red-600"}`}>
+                                        {driver.validate === true ? "Validé" : driver.validate === false ? "En attente" : "Refusé"}
                                     </span>
                                 </div>
 
                                 {/* Actions */}
-                                {driver.statut === "en attente" && (
+                                {driver.validate === false && (
                                     <div className="flex gap-2">
                                         <button
                                             onClick={() => validateDriver(driver.id)}
