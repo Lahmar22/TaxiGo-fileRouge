@@ -31,7 +31,12 @@ export default function Login() {
                 }else if(role == "admin"){
                     navigate("/admin/dashboard");
                 }else if(role == "chauffeur"){
-                    navigate("/chauffeur/dashboard");
+                    if(response.data.user.validate){  
+                        navigate("/chauffeur/dashboard");
+                    }else{
+                        navigate("/chauffeur/attente");
+                    }
+                    
                 }else{
                     navigate("/login");
                 }
