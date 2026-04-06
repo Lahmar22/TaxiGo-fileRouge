@@ -30,6 +30,8 @@ class RegisterRequest extends FormRequest
             'number_phone' => 'required|string|max:20',
             'password' => 'required|string|min:6',
             'role' => 'required|string|in:admin,chauffeur,client',
+            'permis' => 'required_if:role,chauffeur|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'carte_grise' => 'required_if:role,chauffeur|file|mimes:jpg,jpeg,png,pdf|max:2048',
         
         ];
     }
@@ -43,6 +45,9 @@ class RegisterRequest extends FormRequest
             'number_phone.required' => 'Le numero telephone est obligatoire.',
             'password.min' => 'mote de passe min 6 caractére .',
             'role.required' => 'Le role est obligatoire.',
+            'permis.required_if' => 'Le permis est obligatoire pour les chauffeurs.',
+            'carte_grise.required_if' => 'La carte grise est obligatoire pour les chauffeurs.',
+            
         ];
     }
 }
