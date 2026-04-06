@@ -15,6 +15,7 @@ import Reclamations from "../pages/admin/Reclamations";
 import Chauffeurs from "../pages/admin/Chauffeurs";
 import Courses from "../pages/admin/Courses";
 import ProfilAdmin from "../pages/admin/Profile";
+import Attende from "../pages/chauffeur/Attende";
 
 export default function Router() {
     return (
@@ -32,6 +33,7 @@ export default function Router() {
                 <Route path="/chauffeur/Profile" element={<ProfileChauffeur/>} />
                 <Route path="/chauffeur/revenus" element={<Revenus/>} />
                 <Route path="/chauffeur/dashboard" element={<DashboardChauffeur/>} />
+                <Route path="/chauffeur/attente" element={<Attende/>} />
 
                 <Route path="/admin/dashboard" element={<DashboardAdmin/>} />
                 <Route path="/admin/utilisateurs" element={<Utilisateurs/>} />
