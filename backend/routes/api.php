@@ -17,4 +17,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user/{id}', [UserController::class, 'show']);
     Route::patch('/users/{id}', [UserController::class, 'banned']);
     Route::get('/chauffeurs', [ChauffeurController::class, 'index']);
+    Route::patch('/chauffeur/{id}', [ChauffeurController::class, 'updateStatus']);
+    Route::patch('/chauffeurs/{id}', [ChauffeurController::class, 'validateChauffeur']);
 });
