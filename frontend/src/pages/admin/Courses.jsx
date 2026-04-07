@@ -1,53 +1,44 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "../admin/components/Header";
 import Sidebar from "../admin/components/Sidebar";
 import { FaSearch } from "react-icons/fa";
+import axios from "axios";
 
 // ── Mock courses ─────────────────────────
-const MOCK_COURSES = [
-    {
-        id: 1,
-        client: "Youssef B.",
-        chauffeur: "Ahmed",
-        depart: "Médina",
-        destination: "Agdal",
-        date: "27 Mars 2026",
-        prix: 55,
-        statut: "terminée"
-    },
-    {
-        id: 2,
-        client: "Sara K.",
-        chauffeur: "Khalid",
-        depart: "Hay Riad",
-        destination: "Gare Rabat",
-        date: "27 Mars 2026",
-        prix: 35,
-        statut: "en cours"
-    },
-    {
-        id: 3,
-        client: "Amine T.",
-        chauffeur: "Omar",
-        depart: "Salé",
-        destination: "Centre Ville",
-        date: "26 Mars 2026",
-        prix: 40,
-        statut: "annulée"
-    }
-];
 
 export default function Courses() {
     const [openSidebar, setOpenSidebar] = useState(false);
-    const [courses, setCourses] = useState(MOCK_COURSES);
+    const [courses, setCourses] = useState([]); 
     const [search, setSearch] = useState("");
     const [filter, setFilter] = useState("all");
+    const token = localStorage.getItem("token");
+
+    useEffect(() => {
+        const fetchCourses = async () => {
+            try {
+                const res = await axios.get(
+                    "http://127.0.0.1:8000/api/courses",
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
+                );
+
+                setCourses(res.data.courses);
+            } catch (err) {
+                console.error("Erreur lors du chargement des courses :", err);
+            }
+        };
+
+        fetchCourses();
+    }, []);
 
     // ── Filter logic ─────────────────────────
     const filteredCourses = courses.filter(c =>
-        (c.client.toLowerCase().includes(search.toLowerCase()) ||
-         c.chauffeur.toLowerCase().includes(search.toLowerCase())) &&
-        (filter === "all" || c.statut === filter)
+        (c.client.user.last_name.toLowerCase().includes(search.toLowerCase()) ||
+         c.chauffeur.user.last_name.toLowerCase().includes(search.toLowerCase())) &&
+        (filter === "all" || c.status === filter)
     );
 
     return (
@@ -91,9 +82,9 @@ export default function Courses() {
                             onChange={(e) => setFilter(e.target.value)}
                         >
                             <option value="all">Tous</option>
-                            <option value="terminée">Terminées</option>
-                            <option value="en cours">En cours</option>
-                            <option value="annulée">Annulées</option>
+                            <option value="terminee">Terminées</option>
+                            <option value="en attente">En attente</option>
+                            <option value="annulee">Annulées</option>
                         </select>
                     </div>
 
@@ -114,27 +105,27 @@ export default function Courses() {
                             <tbody>
                                 {filteredCourses.map(course => (
                                     <tr key={course.id} className="border-t">
-                                        <td className="p-3 font-semibold">{course.client}</td>
-                                        <td className="p-3">{course.chauffeur}</td>
+                                        <td className="p-3 font-semibold">{course.client.user.last_name}</td>
+                                        <td className="p-3">{course.chauffeur.user.last_name}</td>
 
                                         <td className="p-3">
-                                            {course.depart} → {course.destination}
+                                            {course.adresse_depart} → {course.destination}
                                         </td>
 
-                                        <td className="p-3">{course.date}</td>
+                                        <td className="p-3">{course.date_course}</td>
 
                                         <td className="p-3 font-bold text-green-600">
-                                            {course.prix} DH
+                                            {course.prix_course} DH
                                         </td>
 
                                         <td className="p-3">
                                             <span className={`px-3 py-1 text-xs font-bold rounded-full
-                                                ${course.statut === "terminée"
+                                                ${course.status === "terminée"
                                                     ? "bg-green-100 text-green-600"
-                                                    : course.statut === "en cours"
+                                                    : course.status === "en cours"
                                                     ? "bg-blue-100 text-blue-600"
                                                     : "bg-red-100 text-red-600"}`}>
-                                                {course.statut}
+                                                {course.status}
                                             </span>
                                         </td>
                                     </tr>
