@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Client;
+use App\Models\Chauffeur;
 
 class Course extends Model
 {
@@ -16,4 +18,12 @@ class Course extends Model
         'client_id',
         'chauffeur_id'
     ];
+
+    public function client(){
+        return $this->belongsTo(Client::class);
+    }
+
+    public function chauffeur(){
+        return $this->belongsTo(Chauffeur::class);
+    }
 }
