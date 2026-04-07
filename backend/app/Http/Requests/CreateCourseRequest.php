@@ -29,7 +29,7 @@ class CreateCourseRequest extends FormRequest
             'distance' => 'required|numeric|min:0',
             'prix_course' => 'required|numeric|min:0',
             'status' => 'required|string|in:en attente,confirmée,terminée',
-            'date_course' => 'required|date',
+            'date_course' => 'date',
             'client_id' => 'required|exists:clients,id',
             'chauffeur_id' => 'required|exists:chauffeurs,id',
         
