@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Chauffeur;
+use App\Models\Notification;
 
 class ChauffeurController extends Controller
 {
@@ -21,9 +22,14 @@ class ChauffeurController extends Controller
         $chauffeur->validate = true;
         $chauffeur->save();
 
+        $notification = Notification::create([
+            'message' => 'Nouvelle réclamation reçue'
+        ]);
+
         return response()->json([
             'message' => 'Chauffeur validé avec succès',
-            'chauffeur' => $chauffeur
+            'chauffeur' => $chauffeur,
+            'notification' => $notification
         ]);
     }
 
