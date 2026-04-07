@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "../admin/components/Header";
 import Sidebar from "../admin/components/Sidebar";
 import {
@@ -6,42 +6,53 @@ import {
     FaTrash,
     FaClock
 } from "react-icons/fa";
+import axios from "axios";
 
-// ── Mock Réclamations ─────────────────────────
-const MOCK_RECLAMATIONS = [
-    {
-        id: 1,
-        client: "Youssef B.",
-        message: "Le chauffeur est arrivé en retard.",
-        date: "27 Mars 2026",
-        statut: "en attente"
-    },
-    {
-        id: 2,
-        client: "Sara K.",
-        message: "Problème de paiement.",
-        date: "26 Mars 2026",
-        statut: "résolu"
-    },
-    {
-        id: 3,
-        client: "Amine T.",
-        message: "Course annulée sans raison.",
-        date: "25 Mars 2026",
-        statut: "en attente"
-    }
-];
+
 
 export default function Reclamations() {
     const [openSidebar, setOpenSidebar] = useState(false);
-    const [reclamations, setReclamations] = useState(MOCK_RECLAMATIONS);
+    const [reclamations, setReclamations] = useState([]);
     const [filter, setFilter] = useState("all");
+    const token = localStorage.getItem("token");
+
+    useEffect(() => {
+        const fetchReclamations = async () => {
+            try {
+                const res = await axios.get(
+                    "http://127.0.0.1:8000/api/reclamations",
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
+                );
+
+                setReclamations(res.data.reclamations);
+                console.log("Réclamations chargées :", res.data.reclamations);
+            } catch (err) {
+                console.error("Erreur lors du chargement des réclamations :", err);
+            }
+        };
+
+        fetchReclamations();
+    }, []);
 
     // ── Actions ─────────────────────────
     const markAsResolved = (id) => {
-        setReclamations(reclamations.map(r =>
-            r.id === id ? { ...r, statut: "résolu" } : r
-        ));
+        axios.patch(`http://127.0.0.1:8000/api/reclamations/${id}`, {}, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+            .then(() => {
+                setReclamations(reclamations.map(r =>
+                    r.id === id ? { ...r, status: "résolu" } : r
+                ));
+            })
+            .catch((err) => {
+                console.error("Erreur lors de la validation du chauffeur :", err);
+            });
     };
 
     const deleteReclamation = (id) => {
@@ -50,7 +61,7 @@ export default function Reclamations() {
 
     // ── Filter ─────────────────────────
     const filteredReclamations = reclamations.filter(r =>
-        filter === "all" ? true : r.statut === filter
+        filter === "all" ? true : r.status === filter
     );
 
     return (
@@ -65,7 +76,7 @@ export default function Reclamations() {
                     {/* ── Header ── */}
                     <div className="mb-6">
                         <h2 className="text-2xl font-black text-slate-900">
-                            Gestion des Réclamations 
+                            Gestion des Réclamations
                         </h2>
                         <p className="text-slate-500">
                             Suivez et traitez les réclamations des clients
@@ -76,33 +87,30 @@ export default function Reclamations() {
                     <div className="flex gap-3 mb-6">
                         <button
                             onClick={() => setFilter("all")}
-                            className={`px-4 py-2 rounded-xl ${
-                                filter === "all"
+                            className={`px-4 py-2 rounded-xl ${filter === "all"
                                     ? "bg-slate-800 text-white"
                                     : "bg-white shadow"
-                            }`}
+                                }`}
                         >
                             Toutes
                         </button>
 
                         <button
                             onClick={() => setFilter("en attente")}
-                            className={`px-4 py-2 rounded-xl ${
-                                filter === "en attente"
+                            className={`px-4 py-2 rounded-xl ${filter === "en attente"
                                     ? "bg-yellow-500 text-white"
                                     : "bg-white shadow"
-                            }`}
+                                }`}
                         >
                             En attente
                         </button>
 
                         <button
                             onClick={() => setFilter("résolu")}
-                            className={`px-4 py-2 rounded-xl ${
-                                filter === "résolu"
+                            className={`px-4 py-2 rounded-xl ${filter === "résolu"
                                     ? "bg-green-500 text-white"
                                     : "bg-white shadow"
-                            }`}
+                                }`}
                         >
                             Résolues
                         </button>
@@ -117,28 +125,28 @@ export default function Reclamations() {
                             >
                                 <div>
                                     <p className="font-semibold text-slate-800">
-                                        {r.client}
+                                        {r.client.user.first_name} {r.client.user.last_name}
                                     </p>
                                     <p className="text-slate-600 text-sm mb-2">
-                                        {r.message}
+                                        {r.description}
                                     </p>
                                     <p className="text-xs text-slate-400">
-                                        {r.date}
+                                        {r.date_reclamation} <FaClock className="inline ml-1" />
                                     </p>
 
                                     {/* Status */}
                                     <span className={`inline-block mt-2 px-3 py-1 text-xs font-bold rounded-full
-                                        ${r.statut === "résolu"
+                                        ${r.status === "résolue"
                                             ? "bg-green-100 text-green-600"
                                             : "bg-yellow-100 text-yellow-600"}`}>
-                                        {r.statut}
+                                        {r.status}
                                     </span>
                                 </div>
 
                                 {/* Actions */}
                                 <div className="flex gap-2">
 
-                                    {r.statut !== "résolu" && (
+                                    {r.status !== "résolue" && (
                                         <button
                                             onClick={() => markAsResolved(r.id)}
                                             className="p-2 bg-green-500 text-white rounded-lg"

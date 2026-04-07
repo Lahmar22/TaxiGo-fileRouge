@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "../admin/components/Header";
 import Sidebar from "../admin/components/Sidebar";
+import axios from "axios";
 import {
     LineChart,
     Line,
@@ -37,6 +38,31 @@ const coursesData = [
 export default function Dashboard() {
     const [openSidebar, setOpenSidebar] = useState(false);
     const user = JSON.parse(localStorage.getItem("user"));
+    const token = localStorage.getItem("token");
+    const [statistics, setStatistics] = useState({});
+
+    useEffect(() => {
+        const fetchStatistics = async () => {
+            try {
+                const res = await axios.get(
+                    "http://127.0.0.1:8000/api/statistiques",
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
+                );
+
+                setStatistics(res.data);
+                console.log("Statistiques chargées :", res.data);
+            } catch (err) {
+                console.error("Erreur lors du chargement des statistiques :", err);
+            }
+        };
+
+        fetchStatistics();
+    }, []);
+
 
     return (
         <div className="flex min-h-screen bg-slate-100">
@@ -66,17 +92,17 @@ export default function Dashboard() {
 
                         <div className="bg-white p-5 rounded-2xl shadow">
                             <p className="text-slate-500 text-sm">Courses</p>
-                            <h3 className="text-2xl font-bold">500</h3>
+                            <h3 className="text-2xl font-bold">{statistics.totalCourse}</h3>
                         </div>
 
                         <div className="bg-white p-5 rounded-2xl shadow">
                             <p className="text-slate-500 text-sm">Chauffeurs actifs</p>
-                            <h3 className="text-2xl font-bold">42</h3>
+                            <h3 className="text-2xl font-bold"> {statistics.totalChauffeurs}</h3>
                         </div>
 
                         <div className="bg-white p-5 rounded-2xl shadow">
                             <p className="text-slate-500 text-sm">Utilisateurs</p>
-                            <h3 className="text-2xl font-bold">42</h3>
+                            <h3 className="text-2xl font-bold"> {statistics.totalUsers}</h3>
                         </div>
                     </div>
 
