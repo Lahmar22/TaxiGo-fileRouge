@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
 use App\Models\Vehicule;
 use App\Models\Notification;
+use App\Models\Course;
 
 class Chauffeur extends Model
 {
@@ -29,4 +30,10 @@ class Chauffeur extends Model
     {
         return $this->morphMany(Notification::class, 'notifiable');
     }
+
+    public function course()
+    {
+        return $this->hasMany(Course::class);
+    }
 }
+
