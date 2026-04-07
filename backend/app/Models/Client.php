@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
 use App\Models\Reclamation;
 use App\Models\Notification;
+use App\Models\Course;
 
 class Client extends Model
 {
@@ -24,8 +25,13 @@ class Client extends Model
         return $this->hasMany(Reclamation::class);
     }
 
-     public function notifications()
+    public function notifications()
     {
         return $this->morphMany(Notification::class, 'notifiable');
+    }
+
+    public function course()
+    {
+        return $this->hasMany(Course::class);
     }
 }
