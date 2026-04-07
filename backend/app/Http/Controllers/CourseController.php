@@ -10,7 +10,7 @@ class CourseController extends Controller
 {
     public function index()
     {
-        $courses = Course::all();
+        $courses = Course::with(['client.user', 'chauffeur.user'])->get();
         return response()->json([
             'courses' => $courses
         ]);
@@ -19,6 +19,20 @@ class CourseController extends Controller
 
     public function store(CreateCourseRequest $request)
     {
-        
+        Course::create([
+            'adresse_depart' => $request->adresse_depart,
+            'destination' => $request->destination,
+            'distance' => $request->distance,
+            'prix_course' => $request->prix_course,
+            'status' => $request->status,
+            'date_course' => now(),
+            'client_id' => $request->client_id,
+            'chauffeur_id' => $request->chauffeur_id
+            
+        ]);
+
+        return response()->json([
+            'message' => 'Course created successfully'
+        ], 201);
     }
 }
