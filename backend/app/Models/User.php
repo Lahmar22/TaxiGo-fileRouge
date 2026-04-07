@@ -9,6 +9,8 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use App\models\Client;
 use App\Models\Role;
+use App\Models\Chauffeur;
+use App\Models\Administrateur;
 
 class User extends Authenticatable
 {
@@ -59,6 +61,11 @@ class User extends Authenticatable
     public function chauffeur()
     {
         return $this->hasOne(Chauffeur::class);
+    }
+
+    public function administrateur()
+    {
+        return $this->hasOne(Administrateur::class);
     }
 
     public function role()
