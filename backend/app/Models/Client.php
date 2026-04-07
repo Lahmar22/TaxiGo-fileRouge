@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
+use App\Models\Reclamation;
+use App\Models\Notification;
 
 class Client extends Model
 {
@@ -12,8 +14,18 @@ class Client extends Model
         
     ];
 
-    public function client()
+    public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function reclamations()
+    {
+        return $this->hasMany(Reclamation::class);
+    }
+
+     public function notifications()
+    {
+        return $this->morphMany(Notification::class, 'notifiable');
     }
 }
