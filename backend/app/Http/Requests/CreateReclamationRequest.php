@@ -23,7 +23,7 @@ class CreateReclamationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user_id' => 'required|exists:clients,id',
+            'client_id' => 'required|exists:clients,id',
             'description' => 'required|string',
         ];
     }
