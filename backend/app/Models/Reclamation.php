@@ -8,7 +8,7 @@ use App\Models\Client;
 class Reclamation extends Model
 {
     protected $fillable = [
-        'user_id',
+        'client_id',
         'description',
         'date_reclamation',
         'status',
