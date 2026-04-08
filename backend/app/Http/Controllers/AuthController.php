@@ -91,7 +91,23 @@ class AuthController extends Controller
             ], 404);
         }
 
-       return response()->json([
+        switch ($user->role->role_name) {
+            case 'client':
+                $user->client; 
+                break;
+            case 'chauffeur':
+                $user->chauffeur; 
+                break;
+            case 'admin':
+                $user->administrateur; 
+                break;
+            default:
+                return response()->json([
+                    'message' => 'User role not recognized'
+                ], 400);
+        }
+
+        return response()->json([
             'success' => true,
             'user' => $user,
             'token' => $token
