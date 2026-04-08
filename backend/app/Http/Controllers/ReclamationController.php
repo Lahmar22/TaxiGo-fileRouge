@@ -20,10 +20,16 @@ class ReclamationController extends Controller
     {
 
         $reclamation = Reclamation::create([
-            'user_id' => $request->user_id,
+            'client_id' => $request->client_id,
             'description' => $request->description,
             'date_reclamation' => now(),
             'status' => 'en attente',
+        ]);
+
+        $client = $reclamation->client;
+
+        $client->notifications()->create([
+            'message' => 'Votre réclamation a été créée avec succès.'
         ]);
 
         return response()->json([
