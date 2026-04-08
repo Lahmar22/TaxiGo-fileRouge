@@ -65,7 +65,7 @@ export default function Header({page, setOpenSidebar }) {
 
                 {/* Status */}
                 <button
-                    onClick={() => toggleStatus(user.id)}
+                    onClick={() => toggleStatus(user.chauffeur.id)}
                     className={`text-white text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-2 transition
                     ${online
                         ? "bg-linear-to-br from-emerald-500 to-emerald-600"
