@@ -7,6 +7,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ChauffeurController;
 use App\Http\Controllers\StatistiqueController;
 use App\Http\Controllers\ReclamationController;
+use App\Http\Controllers\NotificationController;
 
 
 Route::post('/register', [AuthController::class, 'register']);
@@ -25,4 +26,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/reclamations', [ReclamationController::class, 'index']);
     Route::post('/reclamations', [ReclamationController::class, 'store']);
     Route::patch('/reclamations/{id}', [ReclamationController::class, 'updateStatus']);
+    Route::get('/notifications/{model}/{id}', [NotificationController::class, 'show']);
 });
