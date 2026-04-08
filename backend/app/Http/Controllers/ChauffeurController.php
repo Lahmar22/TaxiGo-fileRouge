@@ -17,14 +17,11 @@ class ChauffeurController extends Controller
     }
 
     public function validateChauffeur($id)
-    {
+    {   
         $chauffeur = Chauffeur::findOrFail($id);
         $chauffeur->validate = true;
         $chauffeur->save();
 
-        $notification = Notification::create([
-            'message' => 'Nouvelle réclamation reçue'
-        ]);
 
         return response()->json([
             'message' => 'Chauffeur validé avec succès',
