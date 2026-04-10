@@ -1,36 +1,175 @@
 import Sidebar from "../client/components/Sidebar";
 import Header from "../client/components/Header";
 import { useState, useEffect } from "react";
-import axios from "axios";
-import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
+import { MapContainer, TileLayer, Marker, Popup, Polyline, useMapEvents } from 'react-leaflet';
+import L from 'leaflet';
+
 
 
 export default function Dashboard() {
-  const [location, setLocation] = useState({ lat: 0, lng: 0 });
+  const [location, setLocation] = useState([32.2994, -9.2372]);
   const [locationError, setLocationError] = useState(null);
+  const [destination, setDestination] = useState([0, 0]);
   const [openSidebar, setOpenSidebar] = useState(false);
-  
+  const [placeName, setPlaceName] = useState(null);
+  const [destinationAdresse, setDestinationAdresse] = useState(null);
+  const [isLoadingLocation, setIsLoadingLocation] = useState(true);
+  const [userLocation, setUserLocation] = useState(null);
+  const [route, setRoute] = useState([]);
+  const [distance, setDistance] = useState(null);
+  const [duration, setDuration] = useState(null);
+  const [price, setPrice] = useState(null);
+
+  // Custom icon for user location
+  const userIcon = L.icon({
+    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41]
+  });
+
+  // Custom icon for destination
+  const destIcon = L.icon({
+    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41]
+  });
+
   useEffect(() => {
     if (!navigator.geolocation) {
-      setError("Géolocalisation non supportée");
+      setLocationError("Géolocalisation non supportée");
+      setIsLoadingLocation(false);
       return;
     }
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        setLocation({
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-        });
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+
+        setUserLocation([lat, lng]);
+        setLocation([lat, lng]);
+        setIsLoadingLocation(false);
+        getAddress(lat, lng).then((name) => setPlaceName(name));
+
+
       },
-      (error) => setLocationError(error.message)
+      (error) => {
+        setLocationError(error.message);
+        setIsLoadingLocation(false);
+        console.error("Geolocation error:", error);
+      }
     );
   }, []);
-  const { isLoaded } = useLoadScript({
-    googleMapsApiKey: "AIzaSyBwR8BX_A2S9FEO3aDRXyW4vTjFgJKvmrU",
-  });
+
+  async function getAddress(lat, lng) {
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`
+    );
+
+    const data = await res.json();
+    return data.display_name;
+  }
+
+  async function destinationName(address) {
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`
+      );
+
+      const data = await res.json();
+
+      if (!data || data.length === 0) {
+        console.error("Address not found");
+        return;
+      }
+
+      const lat = parseFloat(data[0].lat);
+      const lng = parseFloat(data[0].lon);
+
+      setDestination([lat, lng]);
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  }
+
+  useEffect(() => {
+    const fetchRoute = async () => {
+
+      if (
+        !location ||
+        location[0] === 0 ||
+        !destination ||
+        destination[0] === 0
+      ) return;
+
+      try {
+        const res = await fetch(
+          `https://api.openrouteservice.org/v2/directions/driving-car?api_key=eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjJkYjY4YmM3MzE3ZjRkMDA4NDc1ZDBlZWE4OTBhZTg4IiwiaCI6Im11cm11cjY0In0=&start=${location[1]},${location[0]}&end=${destination[1]},${destination[0]}`
+        );
+
+        const data = await res.json();
+
+        // Check if the response has the expected structure
+        if (data.features && data.features.length > 0 && data.features[0].geometry) {
+          const coords = data.features[0].geometry.coordinates.map(c => [
+            c[1],
+            c[0]
+          ]);
+
+          const summary = data.features[0].properties.summary;
+
+          const distanceKm = summary.distance / 1000; 
+          const durationMin = summary.duration / 60;
+
+          const pricePerKm = 3;
+          const calculatedPrice = distanceKm * pricePerKm;
+
+          setPrice(calculatedPrice);
+
+          setDistance(distanceKm);
+          setDuration(durationMin);
+          setRoute(coords);
+        } else {
+          console.warn("No route data found in response", data);
+          setRoute([]);
+        }
+      } catch (error) {
+        console.error("Error fetching route:", error);
+        setRoute([]);
+      }
+    };
+
+    fetchRoute();
+  }, [location, destination]);
+
+
 
   const user = JSON.parse(localStorage.getItem("user"));
+
+  const submitBooking = () => {
+    if (!placeName || !destinationAdresse) {
+      alert("Veuillez entrer une adresse de départ et une destination valides.");
+      return;
+    } else {
+      const bookingData = {
+        user_id: user.client.id,
+        pickup_location: placeName,
+        destination: destinationAdresse,
+        distance: distance,
+        duration: duration,
+        price: price
+      };
+
+      console.log("Booking data to submit:", bookingData);
+    }
+
+  };
 
   return (
     <div className="flex min-h-screen bg-slate-100">
@@ -74,14 +213,17 @@ export default function Dashboard() {
                 <div className="space-y-3 mb-5">
                   {/* Departure */}
                   <div className="relative">
-                    <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-yellow-400"
-                      fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <circle cx="12" cy="10" r="3" strokeWidth="2" />
+                    <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-yellow-400" fill="none"
+                      stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                        d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
+                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
                     <input id="pickupInput"
                       type="text"
+                      value={placeName || ""}
+                      onChange={(e) => setPlaceName(e.target.value)}
                       className="bg-white/7 border border-white/13 text-white rounded-xl pl-11 pr-4 py-3 w-full text-sm transition-all duration-300 outline-none"
                       placeholder="Point de départ" autoComplete="off" />
                   </div>
@@ -98,6 +240,9 @@ export default function Dashboard() {
                         d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
                     <input id="destInput" type="text"
+                      value={destinationAdresse || ""}
+                      onChange={(e) => setDestinationAdresse(e.target.value)}
+                      onBlur={(e) => destinationName(e.target.value)}
                       className="bg-white/7 border border-white/13 text-white rounded-xl pl-11 pr-4 py-3 w-full text-sm transition-all duration-300 outline-none"
                       placeholder="Destination" autoComplete="off" />
                   </div>
@@ -110,69 +255,67 @@ export default function Dashboard() {
                 </button>
               </div>
 
-              <div className="py-5">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-slate-900 font-bold text-base">Courses à venir</h3>
-                  <a href="/client/history"
-                    className="text-yellow-600 text-xs font-semibold hover:text-yellow-700 transition-colors">Tout voir →</a>
-                </div>
 
-                <div className="space-y-3" id="upcomingList">
-                  <div className="bg-white rounded-[18px] border border-slate-100 p-5 flex items-center gap-4 transition-all duration-300">
-                    <div className="flex flex-col items-center shrink-0">
-                      <div className="route-dot bg-yellow-400"></div>
-                      <div className="route-line"></div>
-                      <div className="route-dot bg-red-400"></div>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2">
-                        <div>
-                          <p className="text-slate-900 font-semibold text-sm truncate">Médina, Rabat</p>
-                          <p className="text-slate-400 text-xs">→ Agdal, Rabat</p>
-                        </div>
-                        <span className="ride-status status-upcoming shrink-0">À venir</span>
-                      </div>
-                      <div className="flex items-center gap-3 mt-2">
-                        <span className="text-xs text-slate-400 flex items-center gap-1">
-                          <svg
-                            className="w-3.5 h-3.5"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                            />
-                          </svg>
-                          14 Mars, 09:00
-                        </span>
-                        <span className="text-xs font-semibold text-amber-600">55 MAD</span>
-                      </div>
-                    </div>
-                  </div>
-
-                </div>
-              </div>
             </div>
 
             <div className="xl:col-span-3 space-y-6">
 
-              <div className="bg-linear-to-br from-slate-200 to-slate-100 rounded-lg h-125">
+              <div className="bg-linear-to-br from-slate-200 to-slate-100 rounded-lg h-125 relative">
 
-                {!isLoaded ? (
-                  <p className="p-4">Chargement de la carte...</p>
-                ) : (
-                  <GoogleMap
-                    mapContainerStyle={{ width: "100%", height: "100%" }}
-                    center={location || { lat: 0, lng: 0 }}
-                    zoom={15}
-                  >
-                    {location && <Marker position={location} />}
-                  </GoogleMap>
+                <MapContainer
+                  center={location}
+                  zoom={13}
+                  style={{ height: "500px", width: "100%" }}
+                >
+                  <TileLayer
+                    attribution='&copy; OpenStreetMap contributors'
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  />
+
+                  {/* User Location Marker */}
+                  {userLocation && (
+                    <Marker position={userLocation} icon={userIcon}>
+                      <Popup>
+                        <div>
+                          <p className="font-bold">Votre localisation</p>
+                          <p className="text-xs">Lat: {userLocation[0].toFixed(4)}</p>
+                          <p className="text-xs">Lng: {userLocation[1].toFixed(4)}</p>
+                        </div>
+                      </Popup>
+                    </Marker>
+                  )}
+
+                  {/* Destination Marker */}
+                  {destination[0] !== 31.6295 && destination[1] !== -8.0088 && (
+                    <Marker position={destination} icon={destIcon}>
+                      <Popup>
+                        <div>
+                          <p className="font-bold">Destination</p>
+                          <p className="text-xs">Lat: {destination[0].toFixed(4)}</p>
+                          <p className="text-xs">Lng: {destination[1].toFixed(4)}</p>
+                        </div>
+                      </Popup>
+                    </Marker>
+                  )}
+
+                  {/* Route Polyline */}
+                  {route.length > 0 && <Polyline positions={route} color="blue" weight={3} opacity={0.7} />}
+                </MapContainer>
+
+                {isLoadingLocation && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/20 rounded-lg">
+                    <div className="bg-white px-4 py-2 rounded-lg">
+                      <p className="text-sm font-semibold">Localisation en cours...</p>
+                    </div>
+                  </div>
+                )}
+
+                {locationError && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-red-500/20 rounded-lg">
+                    <div className="bg-red-100 px-4 py-2 rounded-lg">
+                      <p className="text-sm font-semibold text-red-800">{locationError}</p>
+                    </div>
+                  </div>
                 )}
 
               </div>
