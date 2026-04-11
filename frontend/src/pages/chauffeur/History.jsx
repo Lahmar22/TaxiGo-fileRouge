@@ -24,6 +24,8 @@ export default function History() {
             .catch(err => console.log(err));
     }, []);
 
+    console.log(courses);
+
     const filteredCourses =
         filter === "all"
             ? courses
@@ -93,13 +95,13 @@ export default function History() {
                                         {/* Info */}
                                         <div>
                                             <h3 className="font-bold text-lg text-slate-800">
-                                                {course.client}
+                                                {course.client.user.first_name} {course.client.user.last_name}
                                             </h3>
                                             <p className="text-sm text-slate-500">
-                                                {course.pickup} → {course.dest}
+                                                {course.adresse_depart} → {course.destination}
                                             </p>
                                             <p className="text-sm font-semibold text-amber-500">
-                                                {course.fare}
+                                                {course.prix_course} MAD
                                             </p>
                                         </div>
 
