@@ -163,10 +163,14 @@ export default function Dashboard() {
         destination: destinationAdresse,
         distance: distance,
         duration: duration,
-        price: price
+        price: price,
+        latitude_lang_pickup: location,
+        latitude_lang_destination: destination
       };
 
-      console.log("Booking data to submit:", bookingData);
+      localStorage.setItem("bookingData", JSON.stringify(bookingData));
+
+      
     }
 
   };
@@ -264,7 +268,7 @@ export default function Dashboard() {
 
                 <MapContainer
                   center={location}
-                  zoom={13}
+                  zoom={15}
                   style={{ height: "500px", width: "100%" }}
                 >
                   <TileLayer
