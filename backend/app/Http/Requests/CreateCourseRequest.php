@@ -24,14 +24,14 @@ class CreateCourseRequest extends FormRequest
     {
         return [
             
-            'adresse_depart' => 'required|string|max:255',
+            'pickup_location' => 'required|string|max:255',
             'destination' => 'required|string|max:255',
             'distance' => 'required|numeric|min:0',
-            'prix_course' => 'required|numeric|min:0',
+            'price' => 'required|numeric|min:0',
             'status' => 'required|string|in:en attente,confirmée,terminée',
             'date_course' => 'date',
             'client_id' => 'required|exists:clients,id',
-            'chauffeur_id' => 'required|exists:chauffeurs,id',
+            'chauffeur_id' => 'nullable|exists:chauffeurs,id',
         
         ];
     }
