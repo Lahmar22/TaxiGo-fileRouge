@@ -2,9 +2,10 @@ import { useState, useEffect } from "react";
 import Header from "../chauffeur/components/Header";
 import Sidebar from "../chauffeur/components/Sidebar";
 import { FaSpinner } from "react-icons/fa";
-import { MapContainer, TileLayer, Marker, Popup, Polyline, useMapEvents } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
 import L from 'leaflet';
 import axios from "axios";
+import echo from "../../echo";
 
 
 export default function Dashboard() {
@@ -20,6 +21,7 @@ export default function Dashboard() {
     const [userLocation, setUserLocation] = useState(null);
     const [route, setRoute] = useState([]);
     const token = localStorage.getItem("token");
+    const [offers, setOffers] = useState([]);
 
     const userIcon = L.icon({
         iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
@@ -67,43 +69,20 @@ export default function Dashboard() {
     }, []);
 
     useEffect(() => {
+        if (bookingData) {
+            setTimeout(() => {
+                setReservations([bookingData]);
+            }, 1000);
+        }
+    }, [bookingData]);
 
-        setTimeout(() => {
-            setReservations([bookingData]);
-        }, 1000);
-    }, []);
-
-    const accepter = async () => {
-        setDestination([
-            bookingData.latitude_lang_pickup[0],
-            bookingData.latitude_lang_pickup[1]
-        ]);
+    const acceptOffer = async (id) => {
         try {
-
-            const { data } = await axios.post(
-                "http://127.0.0.1:8000/api/courses",
-                {
-                    'adresse_depart': bookingData.pickup_location,
-                    'destination': bookingData.destination,
-                    'distance': bookingData.distance,
-                    'prix_course': bookingData.price,
-                    'status': 'confirmée',
-                    'client_id': bookingData.user_id,
-                    'chauffeur_id': user.chauffeur.id,
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
-            );
-
-            console.log(data);
-            setIsAccepted(true);
-            setReservations([]);
-
-        } catch (error) {
-            console.error(error.response?.data || error.message);
+            await axios.post(`http://127.0.0.1:8000/api/courses/${id}`, {}, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+        } catch (err) {
+            console.log(err);
         }
     };
 
@@ -153,6 +132,16 @@ export default function Dashboard() {
         fetchRoute();
     }, [location, destination]);
 
+    useEffect(() => {
+        console.log("Listening WebSocket...");
+
+        echo.channel("chauffeurs")
+            .listen(".new-booking", (e) => {
+                console.log("EVENT:", e);
+                setOffers(prev => [...prev, e.course]);
+            });
+
+    }, []);
     return (
 
         <div className="flex min-h-screen bg-slate-100">
@@ -170,6 +159,17 @@ export default function Dashboard() {
                             {isAccepted ? "Course acceptée - Suivi en temps réel" : "Courses disponibles pour le chauffeur aujourd'hui :"}
                         </p>
                     </div>
+
+                    {offers.map((offer) => (
+                        <div key={offer.id} className="card">
+                            <h3>{offer.pickup_location} → {offer.destination}</h3>
+                            <p>{offer.price} DH</p>
+
+                            <button onClick={() => acceptOffer(offer.id)}>
+                                Accepter
+                            </button>
+                        </div>
+                    ))}
 
 
                     {!isAccepted ? (
@@ -196,10 +196,10 @@ export default function Dashboard() {
                                                 </p>
                                                 <div className="space-y-2 ml-4">
                                                     <p className="text-sm text-slate-700">
-                                                        <span className="font-medium">Départ:</span> {res.pickup_location}
+                                                        <span className="font-medium">Départ:</span> {res?.pickup_location}
                                                     </p>
                                                     <p className="text-sm text-slate-700">
-                                                        <span className="font-medium">Destination:</span> {res.destination}
+                                                        <span className="font-medium">Destination:</span> {res?.destination}
                                                     </p>
                                                 </div>
                                             </div>
@@ -208,19 +208,19 @@ export default function Dashboard() {
                                                 <div className="text-center">
                                                     <p className="text-xs text-slate-500 uppercase">Distance</p>
                                                     <p className="text-lg font-semibold text-slate-900">
-                                                        {res.distance?.toFixed(2)} km
+                                                        {res?.distance?.toFixed(2)} km
                                                     </p>
                                                 </div>
                                                 <div className="text-center">
                                                     <p className="text-xs text-slate-500 uppercase">Durée</p>
                                                     <p className="text-lg font-semibold text-slate-900">
-                                                        {Math.round(res.duration)} min
+                                                        {Math.round(res?.duration)} min
                                                     </p>
                                                 </div>
                                                 <div className="text-center">
                                                     <p className="text-xs text-slate-500 uppercase">Prix</p>
                                                     <p className="text-lg font-semibold text-amber-500">
-                                                        {res.price?.toFixed(2)} DH
+                                                        {res?.price?.toFixed(2)} DH
                                                     </p>
                                                 </div>
                                             </div>
