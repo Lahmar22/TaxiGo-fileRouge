@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests\CreateCourseRequest;
 use App\Models\Course;
 use App\Models\Notification;
+use App\Events\NewBookingEvent;
 
 class CourseController extends Controller
 {
@@ -20,26 +21,24 @@ class CourseController extends Controller
 
     public function store(CreateCourseRequest $request)
     {
-        Course::create([
-            'adresse_depart' => $request->adresse_depart,
+
+        
+        $course = Course::create([
+            'adresse_depart' => $request->pickup_location,
             'destination' => $request->destination,
             'distance' => $request->distance,
-            'prix_course' => $request->prix_course,
+            'prix_course' => $request->price,
             'status' => $request->status,
             'date_course' => now(),
-            'client_id' => $request->client_id,
-            'chauffeur_id' => $request->chauffeur_id
+            'client_id' => $request->client_id
             
-        ]);
+        ]); 
 
-        $client = Course::findOrFail($request->client_id)->client;
-
-        $client->notifications()->create([
-            'message' => 'Votre course de ' . $request->adresse_depart . ' à ' . $request->destination . ' a été créée avec succès.',
-        ]);
+        broadcast(new NewBookingEvent($course))->toOthers();
 
         return response()->json([
-            'message' => 'Course created successfully'
+            'message' => 'Course created successfully',
+            'course' => $course
         ], 201);
     }
 }
