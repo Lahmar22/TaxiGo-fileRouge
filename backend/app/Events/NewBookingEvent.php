@@ -4,29 +4,31 @@ namespace App\Events;
 
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
-use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use App\Models\Course;
 
-
-class NewBookingEvent implements ShouldBroadcast
+class NewBookingEvent implements ShouldBroadcastNow
 {
-    public $booking;
+    use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public function __construct($booking)
+    public function __construct(public Course $course) {}
+
+    public function broadcastOn(): Channel
     {
-        $this->booking = $booking;
+        return new Channel('courses');
     }
 
-    public function broadcastOn()
+    public function broadcastAs(): string
     {
-        return new Channel('chauffeurs');
+        return 'new-booking';
     }
 
-    public function broadcastAs()
+    public function broadcastWith(): array
     {
-        return 'NewBookingEvent';
+        return [
+            'course' => $this->course->toArray()
+        ];
     }
 }
