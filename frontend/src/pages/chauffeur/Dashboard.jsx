@@ -10,10 +10,8 @@ import echo from "../../echo";
 
 export default function Dashboard() {
     const [openSidebar, setOpenSidebar] = useState(false);
-    const [reservations, setReservations] = useState([]);
     const [isAccepted, setIsAccepted] = useState(false);
     const user = JSON.parse(localStorage.getItem("user"));
-    const bookingData = JSON.parse(localStorage.getItem("bookingData"));
     const [location, setLocation] = useState([32.2994, -9.2372]);
     const [locationError, setLocationError] = useState(null);
     const [destination, setDestination] = useState([0, 0]);
@@ -32,7 +30,6 @@ export default function Dashboard() {
         shadowSize: [41, 41]
     });
 
-    // Custom icon for destination
     const destIcon = L.icon({
         iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
         shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
@@ -68,30 +65,22 @@ export default function Dashboard() {
         );
     }, []);
 
-    useEffect(() => {
-        if (bookingData) {
-            setTimeout(() => {
-                setReservations([bookingData]);
-            }, 1000);
-        }
-    }, [bookingData]);
 
     const acceptOffer = async (id) => {
         try {
-            await axios.post(`http://127.0.0.1:8000/api/courses/${id}`, {}, {
+            await axios.patch(`http://127.0.0.1:8000/api/course/${id}/accepte`, {
+                "status": "confirmee",
+                "chauffeur_id": user.chauffeur.id,
+            }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
+            setOffers(prev => prev.filter(offer => offer.id !== id));
+            setIsAccepted(true);
         } catch (err) {
             console.log(err);
         }
     };
 
-    const refuser = () => {
-        setReservations([]);
-        setIsAccepted(false);
-        setDestination([0, 0]);
-        setRoute([]);
-    }
 
     useEffect(() => {
         const fetchRoute = async () => {
@@ -110,7 +99,6 @@ export default function Dashboard() {
 
                 const data = await res.json();
 
-                // Check if the response has the expected structure
                 if (data.features && data.features.length > 0 && data.features[0].geometry) {
                     const coords = data.features[0].geometry.coordinates.map(c => [
                         c[1],
@@ -133,15 +121,57 @@ export default function Dashboard() {
     }, [location, destination]);
 
     useEffect(() => {
-        console.log("Listening WebSocket...");
+        const fetchOffers = async () => {
+            try {
+                const response = await axios.get(
+                    "http://127.0.0.1:8000/api/courses",
+                    { headers: { Authorization: `Bearer ${token}` } }
+                );
+                const availableOffers = response.data.courses.filter(
+                    course => !course.chauffeur_id && course.status !== "annuler"
+                );
+                setOffers(availableOffers);
+            } catch (err) {
+                console.error("Error fetching offers:", err);
+            }
+        };
 
-        echo.channel("chauffeurs")
-            .listen(".new-booking", (e) => {
-                console.log("EVENT:", e);
-                setOffers(prev => [...prev, e.course]);
+        if (token) fetchOffers();
+    }, [token]);
+
+
+ useEffect(() => {
+    if (!token) return;
+
+    const channel = echo.channel('courses');
+
+    channel.listen('.new-booking', (event) => {
+        console.log('New booking received:', event);
+        const newCourse = event.course;
+        if (newCourse && !newCourse.chauffeur_id && newCourse.status !== "annuler") {
+            setOffers(prev => {
+                const exists = prev.some(o => o.id === newCourse.id);
+                if (exists) return prev;
+                return [...prev, newCourse];
             });
+        }
+    });
 
-    }, []);
+    channel.listen('.booking-accepted', (event) => {
+        console.log('Booking accepted:', event);
+        setOffers(prev => prev.filter(o => o.id !== event.course.id));
+    });
+
+    channel.listen('.booking-cancelled', (event) => {
+        console.log('Booking cancelled:', event);
+        setOffers(prev => prev.filter(o => o.id !== event.course.id));
+    });
+
+    return () => {
+        echo.leaveChannel('courses');
+    };
+}, [token]);
+
     return (
 
         <div className="flex min-h-screen bg-slate-100">
@@ -156,92 +186,70 @@ export default function Dashboard() {
                             Bonjour, <span className="text-amber-500">{user.first_name} {user.last_name}</span>
                         </h2>
                         <p className="text-slate-500">
-                            {isAccepted ? "Course acceptée - Suivi en temps réel" : "Courses disponibles pour le chauffeur aujourd'hui :"}
+                            {isAccepted ? "Course acceptée" : "Courses disponibles pour le chauffeur aujourd'hui :"}
                         </p>
                     </div>
 
-                    {offers.map((offer) => (
-                        <div key={offer.id} className="card">
-                            <h3>{offer.pickup_location} → {offer.destination}</h3>
-                            <p>{offer.price} DH</p>
+                    {!isAccepted && offers.length > 0 && (
+                        <div className="grid gap-4 mb-6">
+                            <h3 className="text-lg font-semibold text-slate-900">📦 Offres Disponibles</h3>
+                            {offers.map((offer) => (
+                                <div key={offer.id} className="bg-white p-6 rounded-xl shadow hover:shadow-lg transition">
+                                    <div className="mb-4">
+                                        <p className="font-semibold text-lg text-slate-900 mb-2">
+                                            📍 Trajet
+                                        </p>
+                                        <div className="space-y-2 ml-4">
+                                            <p className="text-sm text-slate-700">
+                                                <span className="font-medium">Départ:</span> {offer.adresse_depart || offer.pickup_location}
+                                            </p>
+                                            <p className="text-sm text-slate-700">
+                                                <span className="font-medium">Destination:</span> {offer.destination}
+                                            </p>
+                                        </div>
+                                    </div>
 
-                            <button onClick={() => acceptOffer(offer.id)}>
-                                Accepter
-                            </button>
+                                    <div className="grid grid-cols-3 gap-4 mb-4 p-4 bg-slate-50 rounded-lg">
+                                        <div className="text-center">
+                                            <p className="text-xs text-slate-500 uppercase">Distance</p>
+                                            <p className="text-lg font-semibold text-slate-900">
+                                                {Number(offer?.distance)?.toFixed(2)} km
+                                            </p>
+                                        </div>
+                                        <div className="text-center">
+                                            <p className="text-xs text-slate-500 uppercase">Prix</p>
+                                            <p className="text-lg font-semibold text-amber-500">
+                                                {(Number(offer.prix_course) || Number(offer.price))?.toFixed(2)} DH
+                                            </p>
+                                        </div>
+                                        <div className="text-center">
+                                            <p className="text-xs text-slate-500 uppercase">Status</p>
+                                            <p className="text-lg font-semibold text-blue-500">
+                                                {offer.status || "Disponible"}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <button
+                                        className="w-full bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-medium transition"
+                                        onClick={() => acceptOffer(offer.id)}
+                                    >
+                                        ✓ Accepter cette offre
+                                    </button>
+                                </div>
+                            ))}
                         </div>
-                    ))}
+                    )}
 
 
                     {!isAccepted ? (
-                        <>
-                            {/* 🔄 Driver en attente */}
-                            {reservations.length === 0 ? (
-                                <div className="flex flex-col items-center justify-center h-[60vh] gap-4">
-                                    <FaSpinner className="animate-spin text-4xl text-blue-500" />
-                                    <p className="text-slate-600">
-                                        En attente de nouvelles réservations...
-                                    </p>
-                                </div>
-                            ) : (
-
-                                <div className="grid gap-4">
-                                    {reservations.map((res, idx) => (
-                                        <div
-                                            key={idx}
-                                            className="bg-white p-6 rounded-xl shadow hover:shadow-lg transition"
-                                        >
-                                            <div className="mb-4">
-                                                <p className="font-semibold text-lg text-slate-900 mb-2">
-                                                    📍 Trajet
-                                                </p>
-                                                <div className="space-y-2 ml-4">
-                                                    <p className="text-sm text-slate-700">
-                                                        <span className="font-medium">Départ:</span> {res?.pickup_location}
-                                                    </p>
-                                                    <p className="text-sm text-slate-700">
-                                                        <span className="font-medium">Destination:</span> {res?.destination}
-                                                    </p>
-                                                </div>
-                                            </div>
-
-                                            <div className="grid grid-cols-3 gap-4 mb-4 p-4 bg-slate-50 rounded-lg">
-                                                <div className="text-center">
-                                                    <p className="text-xs text-slate-500 uppercase">Distance</p>
-                                                    <p className="text-lg font-semibold text-slate-900">
-                                                        {res?.distance?.toFixed(2)} km
-                                                    </p>
-                                                </div>
-                                                <div className="text-center">
-                                                    <p className="text-xs text-slate-500 uppercase">Durée</p>
-                                                    <p className="text-lg font-semibold text-slate-900">
-                                                        {Math.round(res?.duration)} min
-                                                    </p>
-                                                </div>
-                                                <div className="text-center">
-                                                    <p className="text-xs text-slate-500 uppercase">Prix</p>
-                                                    <p className="text-lg font-semibold text-amber-500">
-                                                        {res?.price?.toFixed(2)} DH
-                                                    </p>
-                                                </div>
-                                            </div>
-
-                                            <div className="flex gap-3">
-                                                <button className="flex-1 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-medium transition"
-                                                    onClick={() => accepter()}>
-                                                    ✓ Accepter
-                                                </button>
-                                                <button className="flex-1 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-medium transition"
-                                                    onClick={() => refuser()}>
-                                                    ✕ Refuser
-                                                </button>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </>
+                        <div className="flex flex-col items-center justify-center h-[60vh] gap-4">
+                            <FaSpinner className="animate-spin text-4xl text-blue-500" />
+                            <p className="text-slate-600">
+                                En attente de nouvelles réservations...
+                            </p>
+                        </div>
                     ) : (
-                        /* Map display when course is accepted */
                         <div className="space-y-6">
                             <div className="bg-linear-to-br from-slate-200 to-slate-100 rounded-lg h-125 relative">
                                 <MapContainer
@@ -254,7 +262,6 @@ export default function Dashboard() {
                                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                                     />
 
-                                    {/* User Location Marker */}
                                     {userLocation && (
                                         <Marker position={userLocation} icon={userIcon}>
                                             <Popup>
@@ -267,7 +274,6 @@ export default function Dashboard() {
                                         </Marker>
                                     )}
 
-                                    {/* Destination Marker */}
                                     {destination[0] !== 31.6295 && destination[1] !== -8.0088 && (
                                         <Marker position={destination} icon={destIcon}>
                                             <Popup>
@@ -280,7 +286,6 @@ export default function Dashboard() {
                                         </Marker>
                                     )}
 
-                                    {/* Route Polyline */}
                                     {route.length > 0 && <Polyline positions={route} color="blue" weight={3} opacity={0.7} />}
                                 </MapContainer>
 

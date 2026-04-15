@@ -3,16 +3,21 @@ import axios from "axios";
 
 export default function Header({page, setOpenSidebar }) {
 
-    const [online, setOnline] = useState(true);
+    const [online, setOnline] = useState(() => {
+        const saved = localStorage.getItem("chauffeurOnlineStatus");
+        return saved ? JSON.parse(saved) : true;
+    });
+    const [loading, setLoading] = useState(false);
     const token = localStorage.getItem("token");
     const user = JSON.parse(localStorage.getItem("user"));
 
 
     const toggleStatus = async (chauffeurId) => {
         try {
+            setLoading(true);
             const response = await axios.patch(
                 `http://127.0.0.1:8000/api/chauffeur/${chauffeurId}`,
-                {},
+                { is_online: !online },
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -21,9 +26,12 @@ export default function Header({page, setOpenSidebar }) {
             );
 
             setOnline(!online);
+            localStorage.setItem("chauffeurOnlineStatus", JSON.stringify(!online));
 
         } catch (error) {
             console.error(error);
+        } finally {
+            setLoading(false);
         }
     };
                
@@ -66,14 +74,16 @@ export default function Header({page, setOpenSidebar }) {
                 {/* Status */}
                 <button
                     onClick={() => toggleStatus(user.chauffeur.id)}
+                    disabled={loading}
                     className={`text-white text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-2 transition
                     ${online
                         ? "bg-linear-to-br from-emerald-500 to-emerald-600"
                         : "bg-slate-400"
-                    }`}
+                    }
+                    ${loading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
                 >
                     <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
-                    {online ? "En ligne" : "Hors ligne"}
+                    {loading ? "..." : (online ? "En ligne" : "Hors ligne")}
                 </button>
 
                 {/* Notifications */}
