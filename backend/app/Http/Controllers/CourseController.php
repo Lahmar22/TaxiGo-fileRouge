@@ -4,9 +4,12 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Requests\CreateCourseRequest;
+use App\Http\Requests\accepteOffreRequest;
 use App\Models\Course;
 use App\Models\Notification;
 use App\Events\NewBookingEvent;
+use App\Events\BookingAcceptedEvent;
+use App\Events\BookingCancelledEvent;
 
 class CourseController extends Controller
 {
@@ -40,5 +43,34 @@ class CourseController extends Controller
             'message' => 'Course created successfully',
             'course' => $course
         ], 201);
+    }
+
+    public function accepteOffre(accepteOffreRequest $request, $id){
+
+        $course = Course::findOrFail($id);
+        $course->status = $request->status;
+        $course->chauffeur_id = $request->chauffeur_id;
+        $course->save();
+
+        broadcast(new BookingAcceptedEvent($course))->toOthers();
+
+        return response()->json([
+            'message' => 'offre accepte bien',
+        ]);
+
+    }
+
+    public function annulerOffre($id){
+
+        $course = Course::findOrFail($id);
+        $course->status = "annuler";
+        $course->save();
+
+        broadcast(new BookingCancelledEvent($course))->toOthers();
+
+        return response()->json([
+            'message' => 'offre annuler bien',
+        ]);
+
     }
 }
