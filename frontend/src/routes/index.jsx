@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import ProtectedRoute from "../components/ProtectedRoute";
 import Home from "../pages/Home";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
@@ -23,25 +24,78 @@ export default function Router() {
             <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register/>} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/client/dashboard" element={
+                    <ProtectedRoute allowedRoles={["client"]}>
+                        <DashboardClient />
+                    </ProtectedRoute>
+                } />
+                <Route path="/client/profile" element={
+                    <ProtectedRoute allowedRoles={["client"]}>
+                        <Profile />
+                    </ProtectedRoute>
+                } />
+                <Route path="/client/history" element={
+                    <ProtectedRoute allowedRoles={["client"]}>
+                        <History />
+                    </ProtectedRoute>
+                } />
+                <Route path="/chauffeur/dashboard" element={
+                    <ProtectedRoute allowedRoles={["chauffeur"]}>
+                        <DashboardChauffeur />
+                    </ProtectedRoute>
+                } />
+                <Route path="/chauffeur/history" element={
+                    <ProtectedRoute allowedRoles={["chauffeur"]}>
+                        <HistoryChauffeur />
+                    </ProtectedRoute>
+                } />
+                <Route path="/chauffeur/profile" element={
+                    <ProtectedRoute allowedRoles={["chauffeur"]}>
+                        <ProfileChauffeur />
+                    </ProtectedRoute>
+                } />
+                <Route path="/chauffeur/revenus" element={
+                    <ProtectedRoute allowedRoles={["chauffeur"]}>
+                        <Revenus />
+                    </ProtectedRoute>
+                } />
+                <Route path="/chauffeur/attente" element={
+                    <ProtectedRoute allowedRoles={["chauffeur"]}>
+                        <Attende />
+                    </ProtectedRoute>
+                } />
+                <Route path="/admin/dashboard" element={
+                    <ProtectedRoute allowedRoles={["admin"]}>
+                        <DashboardAdmin />
+                    </ProtectedRoute>
+                } />
+                <Route path="/admin/utilisateurs" element={
+                    <ProtectedRoute allowedRoles={["admin"]}>
+                        <Utilisateurs />
+                    </ProtectedRoute>
+                } />
+                <Route path="/admin/reclamations" element={
+                    <ProtectedRoute allowedRoles={["admin"]}>
+                        <Reclamations />
+                    </ProtectedRoute>
+                } />
+                <Route path="/admin/chauffeurs" element={
+                    <ProtectedRoute allowedRoles={["admin"]}>
+                        <Chauffeurs />
+                    </ProtectedRoute>
+                } />
+                <Route path="/admin/courses" element={
+                    <ProtectedRoute allowedRoles={["admin"]}>
+                        <Courses />
+                    </ProtectedRoute>
+                } />
+                <Route path="/admin/profile" element={
+                    <ProtectedRoute allowedRoles={["admin"]}>
+                        <ProfilAdmin />
+                    </ProtectedRoute>
+                } />
 
-                <Route path="/client/dashboard" element={<DashboardClient/>} />
-                <Route path="/client/profile" element={<Profile/>} />
-                <Route path="/client/history" element={<History/>} />
-                
-                <Route path="/chauffeur/history" element={<HistoryChauffeur/>} />
-                <Route path="/chauffeur/Profile" element={<ProfileChauffeur/>} />
-                <Route path="/chauffeur/revenus" element={<Revenus/>} />
-                <Route path="/chauffeur/dashboard" element={<DashboardChauffeur/>} />
-                <Route path="/chauffeur/attente" element={<Attende/>} />
-
-                <Route path="/admin/dashboard" element={<DashboardAdmin/>} />
-                <Route path="/admin/utilisateurs" element={<Utilisateurs/>} />
-                <Route path="/admin/reclamations" element={<Reclamations/>} />
-                <Route path="/admin/chauffeurs" element={<Chauffeurs/>} />
-                <Route path="/admin/courses" element={<Courses/>} />
-                <Route path="/admin/profile" element={<ProfilAdmin/>} />
-                
             </Routes>
         </BrowserRouter>
     );
