@@ -5,6 +5,8 @@ import { MapContainer, TileLayer, Marker, Popup, Polyline, useMapEvents } from '
 import L from 'leaflet';
 import { GiRadarSweep } from "react-icons/gi";
 import axios from "axios";
+import echo from "../../echo";
+
 
 
 export default function Dashboard() {
@@ -191,13 +193,64 @@ export default function Dashboard() {
         }
       );
 
-      setBookingData(res.data.booking);
+      setBookingData(res.data.course);
+      localStorage.setItem("bookingData", JSON.stringify(res.data.course));
 
     } catch (error) {
       console.error(error);
     }
 
   };
+
+
+
+  const resetBooking = async (id) => {
+    try {
+      await axios.patch(`http://127.0.0.1:8000/api/course/${id}/annuler`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+    } catch (err) {
+      console.log(err);
+    }
+
+    setBookingData(null);
+    localStorage.removeItem("bookingData");
+  };
+
+  // Real-time: écoute les événements WebSocket sur le canal 'courses'
+  useEffect(() => {
+    const channel = echo.channel('courses');
+
+    // Quand un chauffeur accepte l'offre
+    channel.listen('.booking-accepted', (event) => {
+      console.log('[Client] booking-accepted reçu:', event);
+      setBookingData(prev => {
+        if (prev && prev.id === event.course.id) {
+          const updated = { ...prev, status: 'confirmee', chauffeur_id: event.course.chauffeur_id };
+          localStorage.setItem('bookingData', JSON.stringify(updated));
+          return updated;
+        }
+        return prev;
+      });
+    });
+
+    // Quand la course est annulée
+    channel.listen('.booking-cancelled', (event) => {
+      console.log('[Client] booking-cancelled reçu:', event);
+      setBookingData(prev => {
+        if (prev && prev.id === event.course.id) {
+          localStorage.removeItem('bookingData');
+          return null;
+        }
+        return prev;
+      });
+    });
+
+    return () => {
+      echo.leaveChannel('courses');
+    };
+  }, []);
 
 
   return (
@@ -226,8 +279,14 @@ export default function Dashboard() {
                 <h3 className="text-xl text-center font-semibold text-slate-900">
                   Recherche de taxi en cours...
                 </h3>
+                <button
+                  onClick={() => resetBooking(bookingData.id)}
+                  className="w-full py-2 px-4 rounded-lg font-semibold text-sm bg-red-500 hover:bg-red-600 text-white transition-all duration-300"
+                >
+                  Annuler
+                </button>
               </div>
-            ) : bookingData?.status === "acceptee" ? (
+            ) : bookingData?.status === "confirmee" ? (
               <div className="xl:col-span-2 bg-white rounded-lg p-6 space-y-4 shadow">
                 <h3 className="text-xl text-center font-semibold text-green-600">
                   Chauffeur accepté ✅
