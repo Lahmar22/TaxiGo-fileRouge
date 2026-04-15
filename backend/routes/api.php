@@ -16,6 +16,8 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::apiResource('/courses', CourseController::class);
+    Route::patch('/course/{id}/accepte', [CourseController::class, 'accepteOffre']);
+    Route::patch('/course/{course}/annuler', [CourseController::class, 'annulerOffre']);
     Route::get('/users', [UserController::class, 'index']);
     Route::get('/user/{id}', [UserController::class, 'show']);
     Route::patch('/users/{id}', [UserController::class, 'banned']);
