@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class CreateCourseRequest extends FormRequest
+class accepteOffreRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,16 +23,8 @@ class CreateCourseRequest extends FormRequest
     public function rules(): array
     {
         return [
-            
-            'pickup_location' => 'required|string|max:255',
-            'destination' => 'required|string|max:255',
-            'distance' => 'required|numeric|min:0',
-            'price' => 'required|numeric|min:0',
-            'status' => 'required|string|in:en attente,confirmee,terminee',
-            'date_course' => 'date',
-            'client_id' => 'required|exists:clients,id',
             'chauffeur_id' => 'nullable|exists:chauffeurs,id',
-        
+            'status' => 'required|string|in:en attente,confirmee,terminee',
         ];
     }
 }
