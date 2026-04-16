@@ -6,6 +6,7 @@ import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet'
 import L from 'leaflet';
 import axios from "axios";
 import echo from "../../echo";
+import { data } from "react-router-dom";
 
 
 export default function Dashboard() {
@@ -68,7 +69,7 @@ export default function Dashboard() {
 
     const acceptOffer = async (id) => {
         try {
-            await axios.patch(`http://127.0.0.1:8000/api/course/${id}/accepte`, {
+            const { data } = await axios.patch(`http://127.0.0.1:8000/api/course/${id}/accepte`, {
                 "status": "confirmee",
                 "chauffeur_id": user.chauffeur.id,
             }, {
@@ -76,6 +77,7 @@ export default function Dashboard() {
             });
             setOffers(prev => prev.filter(offer => offer.id !== id));
             setIsAccepted(true);
+            console.log(data.course);
         } catch (err) {
             console.log(err);
         }
@@ -140,37 +142,37 @@ export default function Dashboard() {
     }, [token]);
 
 
- useEffect(() => {
-    if (!token) return;
+    useEffect(() => {
+        if (!token) return;
 
-    const channel = echo.channel('courses');
+        const channel = echo.channel('courses');
 
-    channel.listen('.new-booking', (event) => {
-        console.log('New booking received:', event);
-        const newCourse = event.course;
-        if (newCourse && !newCourse.chauffeur_id && newCourse.status !== "annuler") {
-            setOffers(prev => {
-                const exists = prev.some(o => o.id === newCourse.id);
-                if (exists) return prev;
-                return [...prev, newCourse];
-            });
-        }
-    });
+        channel.listen('.new-booking', (event) => {
+            console.log('New booking received:', event);
+            const newCourse = event.course;
+            if (newCourse && !newCourse.chauffeur_id && newCourse.status !== "annuler") {
+                setOffers(prev => {
+                    const exists = prev.some(o => o.id === newCourse.id);
+                    if (exists) return prev;
+                    return [...prev, newCourse];
+                });
+            }
+        });
 
-    channel.listen('.booking-accepted', (event) => {
-        console.log('Booking accepted:', event);
-        setOffers(prev => prev.filter(o => o.id !== event.course.id));
-    });
+        channel.listen('.booking-accepted', (event) => {
+            console.log('Booking accepted:', event);
+            setOffers(prev => prev.filter(o => o.id !== event.course.id));
+        });
 
-    channel.listen('.booking-cancelled', (event) => {
-        console.log('Booking cancelled:', event);
-        setOffers(prev => prev.filter(o => o.id !== event.course.id));
-    });
+        channel.listen('.booking-cancelled', (event) => {
+            console.log('Booking cancelled:', event);
+            setOffers(prev => prev.filter(o => o.id !== event.course.id));
+        });
 
-    return () => {
-        echo.leaveChannel('courses');
-    };
-}, [token]);
+        return () => {
+            echo.leaveChannel('courses');
+        };
+    }, [token]);
 
     return (
 
