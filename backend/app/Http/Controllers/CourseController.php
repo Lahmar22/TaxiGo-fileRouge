@@ -48,14 +48,23 @@ class CourseController extends Controller
     public function accepteOffre(accepteOffreRequest $request, $id){
 
         $course = Course::findOrFail($id);
+        if ($course->status === 'confirmee') {
+            return response()->json([
+                'message' => 'Course déjà acceptée'
+            ], 400);
+        }
+
         $course->status = $request->status;
         $course->chauffeur_id = $request->chauffeur_id;
         $course->save();
+
+        $course->load('chauffeur.user');
 
         broadcast(new BookingAcceptedEvent($course))->toOthers();
 
         return response()->json([
             'message' => 'offre accepte bien',
+            'course' => $course
         ]);
 
     }
