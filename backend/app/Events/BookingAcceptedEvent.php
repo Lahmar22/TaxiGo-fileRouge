@@ -32,6 +32,7 @@ class BookingAcceptedEvent implements ShouldBroadcastNow
                 'id' => $this->course->id,
                 'status' => $this->course->status,
                 'chauffeur_id' => $this->course->chauffeur_id,
+                'chauffeur' => $this->course->chauffeur,
             ]
         ];
     }
