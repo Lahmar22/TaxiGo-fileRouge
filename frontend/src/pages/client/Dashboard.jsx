@@ -336,7 +336,7 @@ export default function Dashboard() {
                   <GiRadarSweep className="animate-spin text-4xl text-blue-500 mx-auto" />
 
                   <h3 className="text-xl text-center font-semibold text-slate-900">
-                    Recherche de taxi en cours...
+                    Offre envoyée aux chauffeurs disponibles...
                   </h3>
 
                   {/* Mode de paiement */}
