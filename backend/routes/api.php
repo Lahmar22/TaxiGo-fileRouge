@@ -8,7 +8,7 @@ use App\Http\Controllers\ChauffeurController;
 use App\Http\Controllers\StatistiqueController;
 use App\Http\Controllers\ReclamationController;
 use App\Http\Controllers\NotificationController;
-
+use App\Http\Controllers\PaiementController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
@@ -29,4 +29,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/reclamations', [ReclamationController::class, 'store']);
     Route::patch('/reclamations/{id}', [ReclamationController::class, 'updateStatus']);
     Route::get('/notifications/{model}/{id}', [NotificationController::class, 'show']);
+
+    Route::get('/paiements', [PaiementController::class, 'index']);
+    Route::post('/paiements', [PaiementController::class, 'store']);
+    Route::post('/create-payment-intent', [PaiementController::class, 'createPaymentIntent']);
+    Route::post('/confirm-payment', [PaiementController::class, 'confirmPayment']);
 });
