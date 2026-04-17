@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Client;
 use App\Models\Chauffeur;
+use App\Models\Paiement;
 
 class Course extends Model
 {
@@ -25,5 +26,10 @@ class Course extends Model
 
     public function chauffeur(){
         return $this->belongsTo(Chauffeur::class);
+    }
+
+    public function paiement()
+    {
+        return $this->hasOne(Paiement::class);
     }
 }
