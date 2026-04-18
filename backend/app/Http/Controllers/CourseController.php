@@ -7,7 +7,6 @@ use App\Http\Requests\CreateCourseRequest;
 use App\Http\Requests\accepteOffreRequest;
 use App\Models\Course;
 use App\Models\Notification;
-use App\Events\NewBookingEvent;
 use App\Events\BookingAcceptedEvent;
 use App\Events\BookingCancelledEvent;
 
@@ -20,6 +19,19 @@ class CourseController extends Controller
             'courses' => $courses
         ]);
         
+    }
+
+    public function availableOffers()
+    {
+        $courses = Course::with('client.user')
+            ->whereNull('chauffeur_id')
+            ->where('status', '!=', 'annuler')
+            ->where('status', '!=', 'terminee')
+            ->get();
+        
+        return response()->json([
+            'courses' => $courses
+        ]);
     }
 
     public function store(CreateCourseRequest $request)
@@ -37,7 +49,6 @@ class CourseController extends Controller
             
         ]); 
 
-        broadcast(new NewBookingEvent($course))->toOthers();
 
         return response()->json([
             'message' => 'Course created successfully',

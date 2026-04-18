@@ -7,6 +7,9 @@ use App\Models\Paiement;
 use App\Http\Requests\CreatePaiementRequest;
 use Stripe\Stripe;
 use Stripe\PaymentIntent;
+use App\Events\NewBookingEvent;
+use App\Models\Course;
+use App\Models\Chauffeur;
 
 class PaiementController extends Controller
 {
@@ -81,6 +84,7 @@ class PaiementController extends Controller
     {
         $request->validate([
             'amount' => 'required|numeric',
+            'course_id' => 'required|exists:courses,id',
         ]);
 
         Stripe::setApiKey(env('STRIPE_SECRET'));
@@ -100,6 +104,23 @@ class PaiementController extends Controller
             'status_paiement' => true,
             'course_id' => $request->course_id,
         ]);
+
+        // Get the course and ensure it's ready for offers
+        $course = Course::findOrFail($request->course_id);
+        
+        // Set course status to "en attente" if not already set
+        if ($course->status !== 'confirmee' && $course->status !== 'terminee' && $course->status !== 'annuler') {
+            $course->status = 'en attente';
+            $course->save();
+        }
+
+        // Get all active chauffeurs (status = true)
+        $chauffeurs = Chauffeur::where('status', true)->get();
+
+        // Broadcast the offer to each active chauffeur
+        foreach ($chauffeurs as $chauffeur) {
+            broadcast(new NewBookingEvent($course, $chauffeur->id));
+        }
 
         return response()->json([
             'message' => 'Payment Intent créé avec succès',
