@@ -13,11 +13,11 @@ class NewBookingEvent implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public function __construct(public Course $course) {}
+    public function __construct(public Course $course, public $chauffeur_id) {}
 
     public function broadcastOn(): Channel
     {
-        return new Channel('courses');
+        return new Channel('chauffeur.' . $this->chauffeur_id);
     }
 
     public function broadcastAs(): string
