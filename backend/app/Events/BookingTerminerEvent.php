@@ -9,13 +9,11 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use App\Models\Course;
 
-class BookingCancelledEvent implements ShouldBroadcastNow
+class BookingTerminerEvent implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public function __construct(public Course $course, public $chauffeur_id)
-    {
-    }
+    public function __construct(public Course $course, public $chauffeur_id) {}
 
     public function broadcastOn(): Channel
     {
@@ -24,7 +22,7 @@ class BookingCancelledEvent implements ShouldBroadcastNow
 
     public function broadcastAs(): string
     {
-        return 'booking-cancelled';
+        return 'booking-terminated';
     }
 
     public function broadcastWith(): array
