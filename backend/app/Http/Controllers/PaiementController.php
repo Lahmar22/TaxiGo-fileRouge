@@ -105,19 +105,11 @@ class PaiementController extends Controller
             'course_id' => $request->course_id,
         ]);
 
-        // Get the course and ensure it's ready for offers
         $course = Course::findOrFail($request->course_id);
         
-        // Set course status to "en attente" if not already set
-        if ($course->status !== 'confirmee' && $course->status !== 'terminee' && $course->status !== 'annuler') {
-            $course->status = 'en attente';
-            $course->save();
-        }
 
-        // Get all active chauffeurs (status = true)
         $chauffeurs = Chauffeur::where('status', true)->get();
 
-        // Broadcast the offer to each active chauffeur
         foreach ($chauffeurs as $chauffeur) {
             broadcast(new NewBookingEvent($course, $chauffeur->id));
         }
