@@ -6,9 +6,11 @@ use Illuminate\Http\Request;
 use App\Http\Requests\CreateCourseRequest;
 use App\Http\Requests\accepteOffreRequest;
 use App\Models\Course;
+use App\Models\Chauffeur;
 use App\Models\Notification;
 use App\Events\BookingAcceptedEvent;
 use App\Events\BookingCancelledEvent;
+use App\Events\BookingTerminerEvent;
 
 class CourseController extends Controller
 {
@@ -19,6 +21,28 @@ class CourseController extends Controller
             'courses' => $courses
         ]);
         
+    }
+
+    public function show($id)
+    {
+        $courses = Course::with(['client.user', 'chauffeur.user'])
+        ->where('client_id', $id)
+        ->paginate(6);
+        
+        return response()->json([
+            'courses' => $courses
+        ]);
+    }
+
+    public function showByChauffeur($id)
+    {
+        $courses = Course::with(['client.user', 'chauffeur.user'])
+        ->where('chauffeur_id', $id)
+        ->paginate(6);
+        
+        return response()->json([
+            'courses' => $courses
+        ]);
     }
 
     public function availableOffers()
@@ -69,9 +93,13 @@ class CourseController extends Controller
         $course->chauffeur_id = $request->chauffeur_id;
         $course->save();
 
-        $course->load('chauffeur.user');
+        $chauffeur = Chauffeur::findOrFail($request->chauffeur_id);
+        $chauffeur->revenu_total = $course->prix_course;
+        $chauffeur->save();
 
-        broadcast(new BookingAcceptedEvent($course))->toOthers();
+        $course->load('chauffeur.user'); 
+
+        broadcast(new BookingAcceptedEvent($course, $request->chauffeur_id))->toOthers();
 
         return response()->json([
             'message' => 'offre accepte bien',
@@ -86,10 +114,46 @@ class CourseController extends Controller
         $course->status = "annuler";
         $course->save();
 
-        broadcast(new BookingCancelledEvent($course))->toOthers();
+        broadcast(new BookingCancelledEvent($course, $course->chauffeur_id))->toOthers();
 
         return response()->json([
             'message' => 'offre annuler bien',
+        ]);
+
+    }
+
+    public function terminerCourse($id){
+
+        $course = Course::findOrFail($id);
+        $course->status = "terminee";
+        $course->save();
+
+        broadcast(new BookingTerminerEvent($course, $course->chauffeur_id))->toOthers();
+
+        return response()->json([
+            'message' => 'offre terminee bien',
+        ]);
+
+    }
+
+    public function rateCourse(Request $request, $id){
+
+        $request->validate([
+            'rating' => 'required|integer|min:1|max:5',
+            'comment' => 'nullable|string|max:500',
+            'chauffeur_id' => 'required|exists:chauffeurs,id'
+        ]);
+
+        $course = Course::findOrFail($id);
+        
+        // Store rating in course or create a separate rating record
+        $course->rating = $request->rating;
+        $course->rating_comment = $request->comment;
+        $course->save();
+
+        return response()->json([
+            'message' => 'Merci pour votre évaluation!',
+            'course' => $course
         ]);
 
     }
