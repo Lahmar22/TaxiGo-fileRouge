@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Vehicule;
 use App\Models\Notification;
 use App\Models\Course;
+use App\Models\Evaluation;
 
 class Chauffeur extends Model
 {
@@ -34,6 +35,11 @@ class Chauffeur extends Model
     public function course()
     {
         return $this->hasMany(Course::class);
+    }
+
+    public function evaluations()
+    {
+        return $this->hasMany(Evaluation::class);
     }
 }
 

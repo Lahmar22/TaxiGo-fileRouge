@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\Client;
 use App\Models\Chauffeur;
 use App\Models\Paiement;
+use App\Models\Evaluation;
 
 class Course extends Model
 {
@@ -17,7 +18,9 @@ class Course extends Model
         'status',
         'date_course',
         'client_id',
-        'chauffeur_id'
+        'chauffeur_id',
+        'rating',
+        'rating_comment'
     ];
 
     public function client(){
@@ -31,5 +34,10 @@ class Course extends Model
     public function paiement()
     {
         return $this->hasOne(Paiement::class);
+    }
+
+    public function evaluation()
+    {
+        return $this->hasOne(Evaluation::class);
     }
 }

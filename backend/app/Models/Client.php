@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Reclamation;
 use App\Models\Notification;
 use App\Models\Course;
+use App\Models\Evaluation;
 
 class Client extends Model
 {
@@ -33,5 +34,10 @@ class Client extends Model
     public function course()
     {
         return $this->hasMany(Course::class);
+    }
+
+    public function evaluations()
+    {
+        return $this->hasMany(Evaluation::class);
     }
 }
