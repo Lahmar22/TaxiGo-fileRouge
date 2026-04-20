@@ -11,39 +11,88 @@ export default function History() {
     const [filter, setFilter] = useState("all");
     const user = JSON.parse(localStorage.getItem("user"));
     const token = localStorage.getItem("token");
+    const [currentPage, setCurrentPage] = useState(1);
+    const [statistiques, setStatistiques] = useState({
+        total: 0,
+        confirmed: 0,
+        terminer: 0,
+    });
+    const [pagination, setPagination] = useState({
+        currentPage: 1,
+        lastPage: 1,
+        total: 0,
+        perPage: 10
+    });
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        axios.get("http://127.0.0.1:8000/api/courses", {
-            headers: {
-                Authorization: `Bearer ${token}`
+        fetchCourses(currentPage);
+    }, [currentPage]);
+
+
+    const fetchCourses = async (page = 1) => {
+        setLoading(true);
+        try {
+            const response = await axios.get(
+                `http://127.0.0.1:8000/api/courses/chauffeur/${user.chauffeur.id}?page=${page}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        Accept: 'application/json',
+                    }
+                }
+            );
+
+            setCourses(response.data.courses.data || []);
+            console.log("Courses récupérées :", response.data.courses.data || []);
+            setPagination({
+                currentPage: response.data.courses.current_page || page,
+                lastPage: response.data.courses.last_page || 1,
+                total: response.data.courses.total || 0,
+                perPage: response.data.courses.per_page || 10
+            });
+
+        } catch (error) {
+            console.error("Erreur lors de la récupération des courses :", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        const fetchstats = async () => {
+            try {
+                const response = await axios.get(`http://127.0.0.1:8000/api/statistiques/chauffeur/${user.chauffeur.id}`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        Accept: 'application/json',
+                    }
+                });
+                setStatistiques({
+                    total: response.data.totalCourse || 0,
+                    confirmed: response.data.totalCourseConfirmer || 0,
+                    terminer: response.data.totalCourseTerminer || 0,
+                });
+            } catch (error) {
+                console.error("Erreur lors de la récupération des statistiques :", error);
             }
-        })
-            .then(res => {
-                setCourses(res.data.courses)
-            })
-            .catch(err => console.log(err));
-    }, []);
+        };
 
-    console.log(courses);
+        
 
-    const filteredCourses =
+        fetchstats();
+    }, [user.chauffeur.id, token]);
+    const filteredTrips =
         filter === "all"
             ? courses
             : courses.filter((r) => r.status === filter);
 
-    // ── Stats ─────────────────────────
     const stats = {
-        total: courses.length,
-        pending: courses.filter((r) => r.status === "pending").length,
-        accepted: courses.filter((r) => r.status === "accepted").length,
-        refused: courses.filter((r) => r.status === "refused").length,
+        total: statistiques.total,
+        confirmed: statistiques.confirmed,
+        terminer: statistiques.terminer
     };
 
-    const styles = {
-        pending: "bg-yellow-100 text-yellow-600 px-3 py-1 rounded-xl",
-        accepted: "bg-green-100 text-green-600 px-3 py-1 rounded-xl",
-        refused: "bg-red-100 text-red-600 px-3 py-1 rounded-xl",
-    };
     return (
         <>
             <div className="flex min-h-screen bg-slate-100">
@@ -59,65 +108,144 @@ export default function History() {
                                 Bonjour, <span className="text-amber-500">{user.first_name} {user.last_name}</span>
                             </h2>
                         </div>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
                             <Card title="Total" value={stats.total} />
-                            <Card title="En attente" value={stats.pending} />
-                            <Card title="Acceptées" value={stats.accepted} />
-                            <Card title="Refusées" value={stats.refused} />
+                            <Card title="Confirmées" value={stats.confirmed} />
+                            <Card title="Terminées" value={stats.terminer} />
                         </div>
                         <div className="flex gap-2 mb-6 flex-wrap">
-                            {["all", "pending", "accepted", "refused"].map((f) => (
+                            {[
+                                "toutes",
+                                "terminee",
+                                "confirmee",
+                                "en attente",
+                                "annuler"
+                            ].map((f) => (
                                 <button
                                     key={f}
                                     onClick={() => setFilter(f)}
-                                    className={`px-4 py-2 rounded-xl text-sm font-semibold ${filter === f
-                                        ? "bg-amber-500 text-white"
-                                        : "bg-white text-slate-600"
-                                        }`}
+                                    className={`px-4 py-2 rounded-full text-sm font-semibold transition
+                                    ${filter === f
+                                            ? "bg-yellow-400 text-black shadow"
+                                            : "bg-slate-100 text-slate-600 hover:bg-slate-200"}
+                                `}
                                 >
-                                    {f === "all"
-                                        ? "Tous"
-                                        : f === "pending"
-                                            ? "En attente"
-                                            : f === "accepted"
-                                                ? "Acceptées"
-                                                : "Refusées"}
+                                    {f === "toutes"
+                                        ? "Toutes"
+                                        : f === "terminee"
+                                            ? "Terminées"
+                                            : f === "confirmee"
+                                                ? "Confirmées"
+                                                : f === "en attente"
+                                                    ? "En attente"
+                                                    : "annuler"}
                                 </button>
                             ))}
                         </div>
                         <div className="grid gap-4">
-                            {filteredCourses.length > 0 ? (
-                                filteredCourses.map((course) => (
-                                    <div
-                                        key={course.id}
-                                        className="bg-white p-4 rounded-2xl shadow flex flex-col md:flex-row md:items-center md:justify-between"
-                                    >
-                                        {/* Info */}
-                                        <div>
-                                            <h3 className="font-bold text-lg text-slate-800">
-                                                {course.client.user.first_name} {course.client.user.last_name}
-                                            </h3>
-                                            <p className="text-sm text-slate-500">
-                                                {course.adresse_depart} → {course.destination}
-                                            </p>
-                                            <p className="text-sm font-semibold text-amber-500">
-                                                {course.prix_course} MAD
-                                            </p>
-                                        </div>
-
-                                        <div className="mt-3 md:mt-0 flex gap-2 items-center">
-                                            <span className={styles[course.status] }>
-                                                {course.status}
-                                            </span>
-                                        </div>
-                                    </div>
-                                ))
-                            ) : (
-                                <div className="flex items-center justify-center h-64">
-                                    <p className="text-slate-500">
-                                        Aucune course trouvée.
+                            {/* TRIPS GRID */}
+                            {filteredTrips.length === 0 ? (
+                                <div className="bg-white rounded-2xl p-16 text-center border">
+                                    <p className="font-semibold text-slate-500">
+                                        Aucune course trouvée
                                     </p>
                                 </div>
+                            ) : (
+                                <>
+                                    <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-5">
+
+                                        {filteredTrips.map((trip) => (
+
+                                            <div
+                                                key={trip.id}
+                                                className="bg-white rounded-2xl border border-slate-200 p-5 hover:shadow-lg transition"
+                                            >
+
+                                                {/* TOP */}
+                                                <div className="flex justify-between mb-3">
+                                                    <div>
+                                                        <p className="font-semibold text-slate-800 text-sm">
+                                                            {trip.adresse_depart.split(',').slice(0, 2).join(', ')}
+                                                        </p>
+                                                        <p className="text-slate-400 text-xs">
+                                                            → {trip.destination}
+                                                        </p>
+                                                    </div>
+
+                                                    <span className={`text-xs px-3 py-1 rounded-full font-semibold
+                                                    ${trip.status === "terminee" && "bg-emerald-100 text-emerald-600"}
+                                                    ${trip.status === "confirmee" && "bg-blue-100 text-blue-600"}
+                                                    ${trip.status === "en attente" && "bg-amber-100 text-amber-600"}
+                                                    ${trip.status === "annuler" && "bg-red-100 text-red-600"}
+                                                `}>
+                                                        {trip.status}
+                                                    </span>
+
+                                                </div>
+
+                                                {/* INFO */}
+                                                <div className="flex flex-wrap gap-3 text-xs text-slate-500 mb-3">
+                                                    <span>{trip.date_course}</span>
+                                                    {/* {trip.duration && <span>{trip.duration}</span>} */}
+                                                </div>
+
+                                                {/* PRICE */}
+                                                <div className="text-lg font-black text-yellow-500 mb-3">
+                                                    {Number(trip?.prix_course || 0).toFixed(2)} MAD
+                                                </div>
+
+                                                {/* DRIVER */}
+                                                <div className="pt-3 border-t text-xs text-slate-500">
+                                                    {trip.client
+                                                        ? <>Client <span className="font-semibold text-slate-700">{trip.client.user.first_name} {trip.client.user.last_name}</span></>
+                                                        : "Client non assigné"}
+                                                </div>
+
+                                            </div>
+
+                                        ))}
+
+                                    </div>
+
+                                    {/* PAGINATION */}
+                                    <div className="flex items-center justify-center gap-2 mt-8">
+                                        <button
+                                            onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                                            disabled={currentPage === 1 || loading}
+                                            className="px-4 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                                        >
+                                            ← Précédent
+                                        </button>
+
+                                        <div className="flex gap-1">
+                                            {Array.from({ length: pagination.lastPage }, (_, i) => i + 1).map((page) => (
+                                                <button
+                                                    key={page}
+                                                    onClick={() => setCurrentPage(page)}
+                                                    disabled={loading}
+                                                    className={`px-3 py-2 rounded-lg font-semibold transition ${currentPage === page
+                                                        ? "bg-yellow-400 text-black shadow"
+                                                        : "border border-slate-200 text-slate-600 hover:bg-slate-100 disabled:opacity-50"
+                                                        }`}
+                                                >
+                                                    {page}
+                                                </button>
+                                            ))}
+                                        </div>
+
+                                        <button
+                                            onClick={() => setCurrentPage(Math.min(pagination.lastPage, currentPage + 1))}
+                                            disabled={currentPage === pagination.lastPage || loading}
+                                            className="px-4 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                                        >
+                                            Suivant →
+                                        </button>
+                                    </div>
+
+                                    <div className="text-center text-sm text-slate-500 mt-4">
+                                        Page {pagination.currentPage} sur {pagination.lastPage} ({pagination.total} courses)
+                                    </div>
+                                </>
                             )}
                         </div>
                     </main>

@@ -1,43 +1,49 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "../chauffeur/components/Header";
 import Sidebar from "../chauffeur/components/Sidebar";
 import { FaMoneyBillWave, FaCalendarDay, FaCalendarWeek } from "react-icons/fa";
+import axios from "axios";
 
-// ── Mock revenus / courses ─────────────────────────
-const MOCK_COURSES = [
-    {
-        id: 1,
-        client: "Youssef B.",
-        trajet: "Médina → Agdal",
-        date: "27 Mars 2026",
-        montant: 55
-    },
-    {
-        id: 2,
-        client: "Sara K.",
-        trajet: "Hay Riad → Gare Rabat",
-        date: "27 Mars 2026",
-        montant: 35
-    },
-    {
-        id: 3,
-        client: "Amine T.",
-        trajet: "Salé → Centre Ville",
-        date: "26 Mars 2026",
-        montant: 40
-    }
-];
+
 
 export default function Revenus() {
     const [openSidebar, setOpenSidebar] = useState(false);
+    const [statistiques, setStatistiques] = useState({
+        revenuTotal: 0,
+    });
+    const user = JSON.parse(localStorage.getItem("user"));
+    const token = localStorage.getItem("token");
+
+
+     useEffect(() => {
+        const fetchstats = async () => {
+            try {
+                const response = await axios.get(`http://127.0.0.1:8000/api/statistiques/chauffeur/${user.chauffeur.id}/revenu  `, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        Accept: 'application/json',
+                    }
+                });
+                setStatistiques({
+                    revenuTotal: response.data.revenu || 0,
+                });
+            } catch (error) {
+                console.error("Erreur lors de la récupération des statistiques :", error);
+            }
+        };
+
+        
+
+        fetchstats();
+    }, [user.chauffeur.id, token]);
 
     // ── Calcul revenus ─────────────────────────
-    const revenuJour = MOCK_COURSES
-        .filter(c => c.date === "27 Mars 2026")
-        .reduce((acc, c) => acc + c.montant, 0);
+    // const revenuJour = MOCK_COURSES
+    //     .filter(c => c.date === "27 Mars 2026")
+    //     .reduce((acc, c) => acc + c.montant, 0);
 
-    const revenuTotal = MOCK_COURSES
-        .reduce((acc, c) => acc + c.montant, 0);
+    // const revenuTotal = MOCK_COURSES
+    //     .reduce((acc, c) => acc + c.montant, 0);
 
     return (
         <div className="flex min-h-screen bg-slate-100">
@@ -68,7 +74,7 @@ export default function Revenus() {
                                 <h3 className="font-semibold text-slate-700">Aujourd’hui</h3>
                             </div>
                             <p className="text-2xl font-bold text-slate-900">
-                                {revenuJour} DH
+                                {statistiques.revenuTotal} DH
                             </p>
                         </div>
 
@@ -79,7 +85,7 @@ export default function Revenus() {
                                 <h3 className="font-semibold text-slate-700">Cette semaine</h3>
                             </div>
                             <p className="text-2xl font-bold text-slate-900">
-                                {revenuTotal} DH
+                                {statistiques.revenuTotal} DH
                             </p>
                         </div>
 
@@ -90,7 +96,7 @@ export default function Revenus() {
                                 <h3 className="font-semibold text-slate-700">Total</h3>
                             </div>
                             <p className="text-2xl font-bold text-slate-900">
-                                {revenuTotal} DH
+                                {statistiques.revenuTotal} DH
                             </p>
                         </div>
                     </div>
@@ -102,7 +108,7 @@ export default function Revenus() {
                         </h3>
 
                         <div className="space-y-4">
-                            {MOCK_COURSES.map(course => (
+                            {/* {MOCK_COURSES.map(course => (
                                 <div
                                     key={course.id}
                                     className="flex justify-between items-center border-b pb-3"
@@ -120,7 +126,7 @@ export default function Revenus() {
                                         +{course.montant} DH
                                     </span>
                                 </div>
-                            ))}
+                            ))} */}
                         </div>
                     </div>
 

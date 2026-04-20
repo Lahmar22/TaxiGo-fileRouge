@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import Header from "../chauffeur/components/Header";
 import Sidebar from "../chauffeur/components/Sidebar";
 import { FaSpinner } from "react-icons/fa";
@@ -21,6 +21,9 @@ export default function Dashboard() {
     const [route, setRoute] = useState([]);
     const token = localStorage.getItem("token");
     const [offers, setOffers] = useState([]);
+    const chauffeurOnlineStatus = JSON.parse(localStorage.getItem("chauffeurOnlineStatus")) || true;
+    const [courseAccepted, setCourseAccepted] = useState(null);
+    const [hasArrived, setHasArrived] = useState(false);
 
     const userIcon = L.icon({
         iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
@@ -77,12 +80,99 @@ export default function Dashboard() {
             });
             setOffers(prev => prev.filter(offer => offer.id !== id));
             setIsAccepted(true);
+            destinationName(data.course.adresse_depart);
+            setCourseAccepted(data.course);
             console.log(data.course);
         } catch (err) {
             console.log(err);
         }
     };
 
+
+    async function destinationName(address) {
+        try {
+            const res = await fetch(
+                `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`
+            );
+
+            const data = await res.json();
+
+            if (!data || data.length === 0) {
+                console.error("Address not found");
+                return;
+            }
+
+            const lat = parseFloat(data[0].lat);
+            const lng = parseFloat(data[0].lon);
+
+            setDestination([lat, lng]);
+        } catch (error) {
+            console.error("Error:", error);
+        }
+    }
+
+    useEffect(() => {
+        if (!token || !user?.chauffeur?.id) return;
+
+        const channel = echo.channel('chauffeur.' + user.chauffeur.id);
+
+        channel.listen('.new-booking', (event) => {
+            console.log('New booking received:', event);
+
+            const newCourse = event.course;
+
+            if (newCourse && !newCourse.chauffeur_id && newCourse.status !== "annuler" && newCourse.status !== "terminee") {
+                setOffers(prev => {
+                    const exists = prev.some(o => o.id === newCourse.id);
+                    if (exists) return prev;
+                    return [...prev, newCourse];
+                });
+            }
+        });
+
+        const coursesChannel = echo.channel('courses');
+
+        coursesChannel.listen('.booking-accepted', (event) => {
+            console.log('Booking accepted:', event);
+            setOffers(prev => prev.filter(o => o.id !== event.course.id));
+        });
+
+        coursesChannel.listen('.booking-cancelled', (event) => {
+            console.log('Booking cancelled:', event);
+            setOffers(prev => prev.filter(o => o.id !== event.course.id));
+        });
+
+        return () => {
+            echo.leaveChannel('chauffeur.' + user.chauffeur.id);
+            echo.leaveChannel('courses');
+        };
+    }, [token, user?.chauffeur?.id]);
+
+    const arriveeClient = async (destinationClient) => {
+        destinationName(destinationClient);
+        setHasArrived(true);
+    };
+
+    const terminerCourse = async () => {
+        try {
+            if (!courseAccepted?.id) return;
+
+            await axios.patch(`http://127.0.0.1:8000/api/course/${courseAccepted.id}/terminer`, {}, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            // Reset all states
+            setIsAccepted(false);
+            setHasArrived(false);
+            setCourseAccepted(null);
+            setRoute([]);
+            setDestination([0, 0]);
+
+            console.log('Course completed successfully');
+        } catch (err) {
+            console.error('Error completing course:', err);
+        }
+    };
 
     useEffect(() => {
         const fetchRoute = async () => {
@@ -122,57 +212,7 @@ export default function Dashboard() {
         fetchRoute();
     }, [location, destination]);
 
-    useEffect(() => {
-        const fetchOffers = async () => {
-            try {
-                const response = await axios.get(
-                    "http://127.0.0.1:8000/api/courses",
-                    { headers: { Authorization: `Bearer ${token}` } }
-                );
-                const availableOffers = response.data.courses.filter(
-                    course => !course.chauffeur_id && course.status !== "annuler"
-                );
-                setOffers(availableOffers);
-            } catch (err) {
-                console.error("Error fetching offers:", err);
-            }
-        };
 
-        if (token) fetchOffers();
-    }, [token]);
-
-
-    useEffect(() => {
-        if (!token) return;
-
-        const channel = echo.channel('courses');
-
-        channel.listen('.new-booking', (event) => {
-            console.log('New booking received:', event);
-            const newCourse = event.course;
-            if (newCourse && !newCourse.chauffeur_id && newCourse.status !== "annuler") {
-                setOffers(prev => {
-                    const exists = prev.some(o => o.id === newCourse.id);
-                    if (exists) return prev;
-                    return [...prev, newCourse];
-                });
-            }
-        });
-
-        channel.listen('.booking-accepted', (event) => {
-            console.log('Booking accepted:', event);
-            setOffers(prev => prev.filter(o => o.id !== event.course.id));
-        });
-
-        channel.listen('.booking-cancelled', (event) => {
-            console.log('Booking cancelled:', event);
-            setOffers(prev => prev.filter(o => o.id !== event.course.id));
-        });
-
-        return () => {
-            echo.leaveChannel('courses');
-        };
-    }, [token]);
 
     return (
 
@@ -191,6 +231,11 @@ export default function Dashboard() {
                             {isAccepted ? "Course acceptée" : "Courses disponibles pour le chauffeur aujourd'hui :"}
                         </p>
                     </div>
+                    {!chauffeurOnlineStatus && (
+                        <div className="bg-amber-100 border-l-4 border-amber-500 text-amber-700 p-4 mb-6" role="alert">
+                            <p>maintenant est hors ligne</p>
+                        </div>
+                    )}
 
                     {!isAccepted && offers.length > 0 && (
                         <div className="grid gap-4 mb-6">
@@ -253,6 +298,23 @@ export default function Dashboard() {
                         </div>
                     ) : (
                         <div className="space-y-6">
+                            <div className="">
+                                {!hasArrived ? (
+                                    <button
+                                        onClick={() => arriveeClient(courseAccepted?.destination)}
+                                        className="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-green-500 hover:bg-green-600 active:scale-95 text-white font-semibold rounded-xl shadow-md shadow-green-200 transition-all duration-200"
+                                    >
+                                        Arrivée à la clientèle
+                                    </button>
+                                ) : (
+                                    <button
+                                        onClick={terminerCourse}
+                                        className="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-blue-500 hover:bg-blue-600 active:scale-95 text-white font-semibold rounded-xl shadow-md shadow-blue-200 transition-all duration-200"
+                                    >
+                                        ✓ Terminer la course
+                                    </button>
+                                )}
+                            </div>
                             <div className="bg-linear-to-br from-slate-200 to-slate-100 rounded-lg h-125 relative">
                                 <MapContainer
                                     center={location}
@@ -307,11 +369,6 @@ export default function Dashboard() {
                                     </div>
                                 )}
                             </div>
-
-                            <button className="w-full bg-red-500 hover:bg-red-600 text-white px-4 py-3 rounded-lg font-medium transition text-lg"
-                                onClick={() => refuser()}>
-                                ✕ Annuler la course
-                            </button>
                         </div>
                     )}
 
