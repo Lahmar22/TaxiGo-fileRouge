@@ -33,6 +33,9 @@ export default function Dashboard() {
   const [bookingData, setBookingData] = useState(JSON.parse(localStorage.getItem("bookingData")) || null);
   const [paymentMethod, setPaymentMethod] = useState("cash");
   const [isPaid, setIsPaid] = useState(false);
+  const [isTerminated, setIsTerminated] = useState(false);
+  const [rating, setRating] = useState(0);
+  const [comment, setComment] = useState("");
 
 
   // Custom icon for user location
@@ -227,7 +230,6 @@ export default function Dashboard() {
     localStorage.removeItem("bookingData");
   };
 
-  // Real-time: écoute les événements WebSocket sur le canal 'courses'
   useEffect(() => {
     const channel = echo.channel('courses');
 
@@ -247,13 +249,13 @@ export default function Dashboard() {
       });
     });
 
-    // Quand la course est annulée
-    channel.listen('.booking-cancelled', (event) => {
-      console.log('[Client] booking-cancelled reçu:', event);
+
+    channel.listen('.booking-terminated', (event) => {
+      console.log('[Client] booking-terminated reçu:', event);
       setBookingData(prev => {
         if (prev && prev.id === event.course.id) {
-          localStorage.removeItem('bookingData');
-          return null;
+          setIsTerminated(true);
+          return prev;
         }
         return prev;
       });
@@ -263,6 +265,31 @@ export default function Dashboard() {
       echo.leaveChannel('courses');
     };
   }, []);
+
+  const submitEvaluation = async () => {
+    try {
+      const res = await axios.post(
+        "http://127.0.0.1:8000/api/evaluations",
+        {
+          note: rating,
+          commentaire: comment,
+          course_id: bookingData?.id,
+          client_id: user.client.id,
+          chauffeur_id: bookingData?.chauffeur_id
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      console.log("Evaluation submitted:", res.data.message);
+
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
 
 
@@ -583,6 +610,95 @@ export default function Dashboard() {
 
       </div>
 
+      {/* Evaluation Popup Modal */}
+      {isTerminated && bookingData && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 animate-in">
+            {/* Header */}
+            <div className="text-center mb-6">
+              <h2 className="text-2xl font-bold text-slate-900 mb-2">Évaluez votre chauffeur</h2>
+              <p className="text-slate-600 text-sm">
+                {bookingData.chauffeur.user.first_name} {bookingData.chauffeur.user.last_name}
+              </p>
+            </div>
+
+            {/* Driver Info */}
+            <div className="flex items-center justify-center gap-4 mb-8 pb-6 border-b border-slate-200">
+              <div className="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 font-bold text-xl">
+                {bookingData.chauffeur.user.first_name[0]}{bookingData.chauffeur.user.last_name[0]}
+              </div>
+              <div>
+                <p className="font-semibold text-slate-900">{bookingData.chauffeur.user.first_name}</p>
+                <p className="text-sm text-slate-500">{bookingData.destination}</p>
+                <p className="text-sm text-amber-500 font-medium mt-1">Note votre expérience</p>
+              </div>
+            </div>
+
+            <div className="flex justify-center gap-2 mb-6">
+              <label htmlFor="rating">Note</label>
+              <select
+                id="rating"
+                value={rating}
+                onChange={(e) => setRating(parseInt(e.target.value))}
+                className="border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="0">Sélectionnez une note</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+              </select>
+            </div>
+
+
+            <div className="mb-6">
+              <label className="text-sm font-medium text-slate-700 block mb-2">Commentaire (optionnel)</label>
+              <textarea
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                placeholder="Partagez votre expérience..."
+                className="w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                rows={3}
+              />
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setIsTerminated(false);
+                  setRating(0);
+                  setComment("");
+                  setBookingData(null);
+                  setDestination([0, 0]);
+                  setRoute([]);
+                  localStorage.removeItem("bookingData");
+                }}
+                className="flex-1 py-3 rounded-lg font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 transition-all"
+              >
+                Passer
+              </button>
+              <button
+                onClick={() => {
+                  submitEvaluation();
+                  setIsTerminated(false);
+                  setRating(0);
+                  setComment("");
+                  setBookingData(null);
+                  setDestination([0, 0]);
+                  setRoute([]);
+                  localStorage.removeItem("bookingData");
+                }}
+                disabled={rating === 0}
+                className="flex-1 py-3 rounded-lg font-semibold text-white bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all"
+              >
+                Envoyer l'évaluation
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
