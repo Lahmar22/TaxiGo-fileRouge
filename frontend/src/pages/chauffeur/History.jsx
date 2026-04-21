@@ -83,7 +83,7 @@ export default function History() {
         fetchstats();
     }, [user.chauffeur.id, token]);
     const filteredTrips =
-        filter === "all"
+        filter === "toutes"
             ? courses
             : courses.filter((r) => r.status === filter);
 
@@ -118,8 +118,6 @@ export default function History() {
                                 "toutes",
                                 "terminee",
                                 "confirmee",
-                                "en attente",
-                                "annuler"
                             ].map((f) => (
                                 <button
                                     key={f}
@@ -136,9 +134,7 @@ export default function History() {
                                             ? "Terminées"
                                             : f === "confirmee"
                                                 ? "Confirmées"
-                                                : f === "en attente"
-                                                    ? "En attente"
-                                                    : "annuler"}
+                                                : f}
                                 </button>
                             ))}
                         </div>
