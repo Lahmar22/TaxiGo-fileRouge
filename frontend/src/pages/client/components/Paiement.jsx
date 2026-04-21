@@ -29,7 +29,7 @@ function Paiement({ bookingData, onSuccess }) {
     try {
       // 🔥 1. Créer payment method
       const { error, paymentMethod } = await stripe.createPaymentMethod({
-        type: "card",
+        type: 'card',
         card: cardElement,
       });
 
@@ -46,7 +46,6 @@ function Paiement({ bookingData, onSuccess }) {
           payment_method_id: paymentMethod.id,
           amount: bookingData.prix_course,
           course_id: bookingData.course_id,
-          modepaiement: bookingData.modepaiement,
           status_paiement: "paye",
         },
         {

@@ -31,7 +31,6 @@ export default function Dashboard() {
   const [duration, setDuration] = useState(null);
   const [price, setPrice] = useState(null);
   const [bookingData, setBookingData] = useState(JSON.parse(localStorage.getItem("bookingData")) || null);
-  const [paymentMethod, setPaymentMethod] = useState("cash");
   const [isPaid, setIsPaid] = useState(false);
   const [isTerminated, setIsTerminated] = useState(false);
   const [rating, setRating] = useState(0);
@@ -323,44 +322,13 @@ export default function Dashboard() {
                   Offre envoyée aux chauffeurs disponibles...
                 </h3>
 
-                {/* Mode de paiement */}
-                <div className="space-y-2">
-                  <p className="text-sm font-medium text-gray-700 text-center">
-                    Mode de paiement
-                  </p>
-
-                  <div className="flex gap-3 justify-center">
-                    <button
-                      onClick={() => setPaymentMethod("cash")}
-                      className={`px-4 py-2 rounded-lg text-sm font-semibold border ${paymentMethod === "cash"
-                        ? "bg-green-500 text-white"
-                        : "bg-white text-gray-700"
-                        }`}
-                    >
-                      💵 Espèces
-                    </button>
-
-                    <button
-                      onClick={() => setPaymentMethod("card")}
-                      className={`px-4 py-2 rounded-lg text-sm font-semibold border ${paymentMethod === "card"
-                        ? "bg-blue-500 text-white"
-                        : "bg-white text-gray-700"
-                        }`}
-                    >
-                      💳 Carte
-                    </button>
-                  </div>
-                </div>
-
-                {/* Formulaire carte bancaire */}
-                {paymentMethod === "card" &&
-                  !isPaid && (
+    
+                  {!isPaid && (
                     <div className="mt-4">
                       <Elements stripe={stripePromise}>
                         <Paiement
                           bookingData={{
                             ...bookingData,
-                            modepaiement: paymentMethod,
                             amount: Number(bookingData.prix_course),
                             course_id: bookingData?.id,
                           }}
