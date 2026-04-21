@@ -99,7 +99,6 @@ class PaiementController extends Controller
 
         Paiement::create([
             'montant' => $request->amount,
-            'mode_paiement' => $request->modepaiement ?? 'carte',
             'stripe_payment_intent_id' => $paymentIntent->id,
             'status_paiement' => true,
             'course_id' => $request->course_id,
