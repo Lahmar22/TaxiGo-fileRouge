@@ -149,8 +149,17 @@ export default function Dashboard() {
     }, [token, user?.chauffeur?.id]);
 
     const arriveeClient = async (destinationClient) => {
-        destinationName(destinationClient);
-        setHasArrived(true);
+        try {
+            destinationName(destinationClient);
+            setHasArrived(true);
+
+            await axios.post(`http://127.0.0.1:8000/api/course/${courseAccepted.id}/arrivee-client`, {}, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+        } catch (error) {
+            console.error("Erreur API arrivée :", error);
+        }
     };
 
     const terminerCourse = async () => {
@@ -315,7 +324,7 @@ export default function Dashboard() {
                                     </button>
                                 )}
                             </div>
-                            <div className="bg-linear-to-br from-slate-200 to-slate-100 rounded-lg h-125 relative">
+                            <div className="relative z-0 bg-linear-to-br from-slate-200 to-slate-100 rounded-lg h-125">
                                 <MapContainer
                                     center={location}
                                     zoom={15}
