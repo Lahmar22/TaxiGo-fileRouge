@@ -8,7 +8,7 @@ import axios from "axios";
 export default function History() {
     const [openSidebar, setOpenSidebar] = useState(false);
     const [courses, setCourses] = useState([]);
-    const [filter, setFilter] = useState("all");
+    const [filter, setFilter] = useState("toutes");
     const user = JSON.parse(localStorage.getItem("user"));
     const token = localStorage.getItem("token");
     const [currentPage, setCurrentPage] = useState(1);
@@ -191,11 +191,27 @@ export default function History() {
                                                 </div>
 
                                                 {/* DRIVER */}
-                                                <div className="pt-3 border-t text-xs text-slate-500">
+                                                <div className="pt-3 border-t text-xs text-slate-500 mb-3">
                                                     {trip.client
                                                         ? <>Client <span className="font-semibold text-slate-700">{trip.client.user.first_name} {trip.client.user.last_name}</span></>
                                                         : "Client non assigné"}
                                                 </div>
+
+                                                {/* EVALUATION */}
+                                                {trip.evaluation && (
+                                                    <div className="pt-3 border-t">
+                                                        <div className="flex items-center justify-between mb-2">
+                                                            <span className="text-xs text-slate-500 font-semibold">Évaluation</span>
+                                                            <div className="flex items-center gap-1">
+                                                                <span className="text-yellow-500 text-sm font-bold">★</span>
+                                                                <span className="text-sm font-bold text-slate-700">{trip.evaluation.note}/5</span>
+                                                            </div>
+                                                        </div>
+                                                        {trip.evaluation.commentaire && (
+                                                            <p className="text-xs text-slate-600 italic">{trip.evaluation.commentaire}</p>
+                                                        )}
+                                                    </div>
+                                                )}
 
                                             </div>
 
