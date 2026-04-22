@@ -45,5 +45,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/confirm-payment', [PaiementController::class, 'confirmPayment']);
 
     Route::post('/evaluations', [EvaluationController::class, 'store']);
-
+    
 });
