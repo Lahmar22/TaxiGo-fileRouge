@@ -37,7 +37,7 @@ class CourseController extends Controller
 
     public function showByChauffeur($id)
     {
-        $courses = Course::with(['client.user', 'chauffeur.user'])
+        $courses = Course::with(['client.user', 'chauffeur.user', 'evaluation'])
         ->where('chauffeur_id', $id)
         ->paginate(6);
         
