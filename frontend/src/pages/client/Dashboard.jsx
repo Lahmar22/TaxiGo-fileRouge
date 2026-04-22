@@ -253,8 +253,25 @@ export default function Dashboard() {
       console.log('[Client] booking-terminated reçu:', event);
       setBookingData(prev => {
         if (prev && prev.id === event.course.id) {
-          setIsTerminated(true);
-          return prev;
+          const updated = {
+            ...prev, status: 'terminee'
+          };
+          localStorage.setItem('bookingData', JSON.stringify(updated));
+          return updated;
+        }
+        return prev;
+      });
+    });
+
+    channel.listen('.booking-arrive', (event) => {
+      console.log('[Client] booking-arrive reçu:', event);
+      setBookingData(prev => {
+        if (prev && prev.id === event.course.id) {
+          const updated = {
+            ...prev, status: 'arrive'
+          };
+          localStorage.setItem('bookingData', JSON.stringify(updated));
+          return updated;
         }
         return prev;
       });
@@ -322,23 +339,23 @@ export default function Dashboard() {
                   Offre envoyée aux chauffeurs disponibles...
                 </h3>
 
-    
-                  {!isPaid && (
-                    <div className="mt-4">
-                      <Elements stripe={stripePromise}>
-                        <Paiement
-                          bookingData={{
-                            ...bookingData,
-                            amount: Number(bookingData.prix_course),
-                            course_id: bookingData?.id,
-                          }}
-                          onSuccess={() => {
-                            setIsPaid(true);
-                          }}
-                        />
-                      </Elements>
-                    </div>
-                  )}
+
+                {!isPaid && (
+                  <div className="mt-4">
+                    <Elements stripe={stripePromise}>
+                      <Paiement
+                        bookingData={{
+                          ...bookingData,
+                          amount: Number(bookingData.prix_course),
+                          course_id: bookingData?.id,
+                        }}
+                        onSuccess={() => {
+                          setIsPaid(true);
+                        }}
+                      />
+                    </Elements>
+                  </div>
+                )}
 
                 {isPaid && (
                   <div className="mt-4 text-center text-green-600 font-semibold">
@@ -441,7 +458,162 @@ export default function Dashboard() {
                   </div>
                 </div>
               </div>
+            ) : bookingData?.status === "arrive" ? (
+              <div className="xl:col-span-2 bg-white rounded-2xl p-6 shadow-md border border-slate-100">
+                <div className="flex items-center gap-4">
+
+                  <div className="bg-green-100 p-3 rounded-full">
+                    <svg
+                      className="w-6 h-6 text-green-600"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2l4-4" />
+                    </svg>
+                  </div>
+
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold text-slate-900">
+                      Chauffeur arrivé 🚖
+                    </h3>
+                    <p className="text-sm text-slate-500">
+                      Le chauffeur est arrivé au point de prise en charge du client.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-4 bg-slate-50 p-4 rounded-xl text-sm text-slate-600">
+                  Merci de rejoindre votre chauffeur. Le trajet commencera bientôt.
+                </div>
+
+
+              </div>
+
+            ) : bookingData?.status === "terminee" ? (
+              <div className="xl:col-span-2 bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl shadow-lg border border-slate-200 p-8 max-w-lg mx-auto">
+
+                {/* Completion Icon */}
+                <div className="flex justify-center mb-6">
+                  <div className="w-16 h-16 rounded-full bg-green-100 border-4 border-green-500 flex items-center justify-center animate-bounce">
+                    <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                </div>
+
+                {/* Header */}
+                <div className="text-center mb-8">
+                  <h2 className="text-2xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent mb-2">
+                    Course complétée !
+                  </h2>
+                  <p className="text-slate-600 text-sm font-medium">
+                    {bookingData.chauffeur.user.first_name} {bookingData.chauffeur.user.last_name}
+                  </p>
+                  <p className="text-slate-500 text-xs mt-1">Partagez votre avis sur cette course</p>
+                </div>
+
+                {/* Driver Card */}
+                <div className="bg-white rounded-xl p-4 mb-6 border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="flex items-center gap-4">
+                    <div className="w-14 h-14 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-lg shrink-0">
+                      {bookingData.chauffeur.user.first_name.charAt(0)}{bookingData.chauffeur.user.last_name.charAt(0)}
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-semibold text-slate-900">{bookingData.chauffeur.user.first_name} {bookingData.chauffeur.user.last_name}</p>
+                      <p className="text-sm text-slate-500 mt-1">✓ Course complétée avec succès</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Trip Stats */}
+                <div className="grid grid-cols-3 gap-2 mb-8">
+                  <div className="text-center p-3 bg-white rounded-lg border border-slate-100 shadow-sm">
+                    <p className="text-xs text-slate-500 font-medium mb-1">Distance</p>
+                    <p className="text-lg font-bold text-slate-900">{bookingData.distance?.toFixed(2)}</p>
+                    <p className="text-xs text-slate-500">km</p>
+                  </div>
+                  <div className="text-center p-3 bg-white rounded-lg border border-slate-100 shadow-sm">
+                    <p className="text-xs text-slate-500 font-medium mb-1">Durée</p>
+                    <p className="text-lg font-bold text-slate-900">{Math.round(bookingData.duration || 0)}</p>
+                    <p className="text-xs text-slate-500">min</p>
+                  </div>
+                  <div className="text-center p-3 bg-white rounded-lg border border-slate-100 shadow-sm">
+                    <p className="text-xs text-slate-500 font-medium mb-1">Prix</p>
+                    <p className="text-lg font-bold text-amber-600">{bookingData.prix_course?.toFixed(2)}</p>
+                    <p className="text-xs text-slate-500">MAD</p>
+                  </div>
+                </div>
+
+                {/* Rating Section */}
+                <div className="bg-white rounded-xl p-5 border border-slate-100 shadow-sm mb-6">
+                  <label htmlFor="rating" className="block text-sm font-semibold text-slate-900 mb-4">
+                    Évaluation
+                  </label>
+
+                  <div className="relative">
+                    <select
+                      id="rating"
+                      value={rating}
+                      onChange={(e) => setRating(parseInt(e.target.value))}
+                      className="w-full appearance-none px-4 py-3 pr-10 rounded-lg border-2 border-slate-300 bg-white text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all cursor-pointer hover:border-slate-400"
+                    >
+                      <option value="0">Sélectionnez une note</option>
+                      <option value="1">1 - Très mauvais</option>
+                      <option value="2">2 - Mauvais</option>
+                      <option value="3">3 - Moyen</option>
+                      <option value="4">4 - Bon</option>
+                      <option value="5">5 - Excellent</option>
+                    </select>
+
+                    {/* Custom arrow */}
+                    <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
+                      <svg className="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                      </svg>
+                    </div>
+                  </div>
+
+                 
+                </div>
+
+                <div className="flex gap-3 border-fuchsia-500 p-3 rounded-lg">
+                  <button
+                    onClick={() => {
+                      setIsTerminated(false);
+                      setRating(0);
+                      setComment("");
+                      setBookingData(null);
+                      setDestination([0, 0]);
+                      setRoute([]);
+                      localStorage.removeItem("bookingData");
+                    }}
+                    className="flex-1 py-3 rounded-lg font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 transition-all"
+                  >
+                    Passer
+                  </button>
+                  <button
+                    onClick={() => {
+                      submitEvaluation();
+                      setIsTerminated(false);
+                      setRating(0);
+                      setComment("");
+                      setBookingData(null);
+                      setDestination([0, 0]);
+                      setRoute([]);
+                      localStorage.removeItem("bookingData");
+                    }}
+                    disabled={rating === 0}
+                    className="flex-1 py-3 rounded-lg font-semibold text-white bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all"
+                  >
+                    Envoyer l'évaluation
+                  </button>
+                </div>
+
+              </div>
             ) : (
+
               <div className="xl:col-span-2">
                 <div className="bg-linear-to-br from-slate-900 to-slate-800 rounded-2xl relative overflow-hidden p-7 delay-1">
 
@@ -507,7 +679,7 @@ export default function Dashboard() {
 
             <div className="xl:col-span-3 space-y-6">
 
-              <div className="bg-linear-to-br from-slate-200 to-slate-100 rounded-lg h-125 relative">
+              <div className="relative z-0 bg-linear-to-br from-slate-200 to-slate-100 rounded-lg h-125">
 
                 <MapContainer
                   center={location}
@@ -578,95 +750,7 @@ export default function Dashboard() {
 
       </div>
 
-      {/* Evaluation Popup Modal */}
-      {isTerminated && bookingData && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 animate-in">
-            {/* Header */}
-            <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold text-slate-900 mb-2">Évaluez votre chauffeur</h2>
-              <p className="text-slate-600 text-sm">
-                {bookingData.chauffeur.user.first_name} {bookingData.chauffeur.user.last_name}
-              </p>
-            </div>
 
-            {/* Driver Info */}
-            <div className="flex items-center justify-center gap-4 mb-8 pb-6 border-b border-slate-200">
-              <div className="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 font-bold text-xl">
-                {bookingData.chauffeur.user.first_name[0]}{bookingData.chauffeur.user.last_name[0]}
-              </div>
-              <div>
-                <p className="font-semibold text-slate-900">{bookingData.chauffeur.user.first_name}</p>
-                <p className="text-sm text-slate-500">{bookingData.destination}</p>
-                <p className="text-sm text-amber-500 font-medium mt-1">Note votre expérience</p>
-              </div>
-            </div>
-
-            <div className="flex justify-center gap-2 mb-6">
-              <label htmlFor="rating">Note</label>
-              <select
-                id="rating"
-                value={rating}
-                onChange={(e) => setRating(parseInt(e.target.value))}
-                className="border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="0">Sélectionnez une note</option>
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5">5</option>
-              </select>
-            </div>
-
-
-            <div className="mb-6">
-              <label className="text-sm font-medium text-slate-700 block mb-2">Commentaire (optionnel)</label>
-              <textarea
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                placeholder="Partagez votre expérience..."
-                className="w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-                rows={3}
-              />
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex gap-3">
-              <button
-                onClick={() => {
-                  setIsTerminated(false);
-                  setRating(0);
-                  setComment("");
-                  setBookingData(null);
-                  setDestination([0, 0]);
-                  setRoute([]);
-                  localStorage.removeItem("bookingData");
-                }}
-                className="flex-1 py-3 rounded-lg font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 transition-all"
-              >
-                Passer
-              </button>
-              <button
-                onClick={() => {
-                  submitEvaluation();
-                  setIsTerminated(false);
-                  setRating(0);
-                  setComment("");
-                  setBookingData(null);
-                  setDestination([0, 0]);
-                  setRoute([]);
-                  localStorage.removeItem("bookingData");
-                }}
-                disabled={rating === 0}
-                className="flex-1 py-3 rounded-lg font-semibold text-white bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all"
-              >
-                Envoyer l'évaluation
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
