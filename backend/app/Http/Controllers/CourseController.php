@@ -11,6 +11,7 @@ use App\Models\Notification;
 use App\Events\BookingAcceptedEvent;
 use App\Events\BookingCancelledEvent;
 use App\Events\BookingTerminerEvent;
+use App\Events\ChauffeurArriveEvent;
 
 class CourseController extends Controller
 {
@@ -146,7 +147,6 @@ class CourseController extends Controller
 
         $course = Course::findOrFail($id);
         
-        // Store rating in course or create a separate rating record
         $course->rating = $request->rating;
         $course->rating_comment = $request->comment;
         $course->save();
@@ -156,5 +156,16 @@ class CourseController extends Controller
             'course' => $course
         ]);
 
+    }
+
+    public function arriveChauffeur($id){
+
+        $course = Course::findOrFail($id);
+    
+        broadcast(new ChauffeurArriveEvent($course, $course->chauffeur_id))->toOthers();
+
+        return response()->json([
+            'message' => 'Chauffeur arrivé à destination',
+        ]);
     }
 }
