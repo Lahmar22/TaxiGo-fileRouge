@@ -492,7 +492,7 @@ export default function Dashboard() {
               </div>
 
             ) : bookingData?.status === "terminee" ? (
-              <div className="xl:col-span-2 bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl shadow-lg border border-slate-200 p-8 max-w-lg mx-auto">
+              <div className="xl:col-span-2 bg-linear-to-br from-slate-50 to-slate-100 rounded-2xl shadow-lg border border-slate-200 p-8 max-w-lg mx-auto">
 
                 {/* Completion Icon */}
                 <div className="flex justify-center mb-6">
@@ -505,7 +505,7 @@ export default function Dashboard() {
 
                 {/* Header */}
                 <div className="text-center mb-8">
-                  <h2 className="text-2xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent mb-2">
+                  <h2 className="text-2xl font-bold bg-linear-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent mb-2">
                     Course complétée !
                   </h2>
                   <p className="text-slate-600 text-sm font-medium">
