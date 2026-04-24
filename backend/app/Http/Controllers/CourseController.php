@@ -46,6 +46,17 @@ class CourseController extends Controller
         ]);
     }
 
+    public function revenuChauffeur($id)
+    {
+        $revenu = Course::with(['client.user', 'chauffeur.user'])
+        ->where('chauffeur_id', $id)
+        ->paginate(6);
+        
+        return response()->json([
+            'revenu' => $revenu
+        ]);
+    }
+
     public function availableOffers()
     {
         $courses = Course::with('client.user')
