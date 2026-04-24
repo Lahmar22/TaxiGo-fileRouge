@@ -24,7 +24,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/courses/{course}/rate', [CourseController::class, 'rateCourse']);
     Route::get('/courses/{id}', [CourseController::class, 'show']);
     Route::get('/courses/chauffeur/{id}', [CourseController::class, 'showByChauffeur']);
-    Route::post('/course/{id}/arrivee-client', [CourseController::class, 'arriveChauffeur']); 
+    Route::post('/course/{id}/arrivee-client', [CourseController::class, 'arriveChauffeur']);
+    Route::get('/courses/chauffeur/{id}/revenu', [CourseController::class, 'revenuChauffeur']);
     Route::get('/users', [UserController::class, 'index']);
     Route::get('/user/{id}', [UserController::class, 'show']);
     Route::patch('/users/{id}', [UserController::class, 'banned']);
