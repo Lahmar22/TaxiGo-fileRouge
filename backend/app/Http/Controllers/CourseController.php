@@ -17,11 +17,10 @@ class CourseController extends Controller
 {
     public function index()
     {
-        $courses = Course::with(['client.user', 'chauffeur.user'])->get();
-        return response()->json([
-            'courses' => $courses
-        ]);
-        
+        $courses = Course::with(['client.user', 'chauffeur.user'])
+                        ->paginate(6);
+
+        return response()->json($courses);
     }
 
     public function show($id)
