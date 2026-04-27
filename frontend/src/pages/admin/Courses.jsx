@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import Header from "../admin/components/Header";
 import Sidebar from "../admin/components/Sidebar";
-import { FaSearch } from "react-icons/fa";
+import { FaSearch, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import axios from "axios";
 
 // ── Mock courses ─────────────────────────
@@ -11,32 +11,50 @@ export default function Courses() {
     const [courses, setCourses] = useState([]); 
     const [search, setSearch] = useState("");
     const [filter, setFilter] = useState("all");
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pagination, setPagination] = useState({
+        current_page: 1,
+        last_page: 1,
+        per_page: 6,
+        total: 0,
+    });
     const token = localStorage.getItem("token");
 
+    const fetchCourses = async (page = 1) => {
+        try {
+            const res = await axios.get(
+                `http://127.0.0.1:8000/api/courses?page=${page}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            setCourses(res.data.data);
+            setPagination({
+                current_page: res.data.current_page,
+                last_page: res.data.last_page,
+                per_page: res.data.per_page,
+                total: res.data.total,
+            });
+            setCurrentPage(page);
+        } catch (err) {
+            console.error("Erreur lors du chargement des courses :", err);
+        }
+    };
+
     useEffect(() => {
-        const fetchCourses = async () => {
-            try {
-                const res = await axios.get(
-                    "http://127.0.0.1:8000/api/courses",
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        },
-                    }
-                );
-
-                setCourses(res.data.courses);
-            } catch (err) {
-                console.error("Erreur lors du chargement des courses :", err);
-            }
-        };
-
-        fetchCourses();
+        fetchCourses(1);
     }, []);
+
+    console.log(courses);
 
     // ── Filter logic ─────────────────────────
     const filteredCourses = courses.filter(c =>
-        (c.client.user.last_name.toLowerCase().includes(search.toLowerCase()) ||
+        ((!c.client || !c.client.user?.last_name) || 
+         c.client.user.last_name.toLowerCase().includes(search.toLowerCase())) &&
+        ((!c.chauffeur || !c.chauffeur.user?.last_name) || 
          c.chauffeur.user.last_name.toLowerCase().includes(search.toLowerCase())) &&
         (filter === "all" || c.status === filter)
     );
@@ -105,24 +123,28 @@ export default function Courses() {
                             <tbody>
                                 {filteredCourses.map(course => (
                                     <tr key={course.id} className="border-t">
-                                        <td className="p-3 font-semibold">{course.client.user.last_name}</td>
-                                        <td className="p-3">{course.chauffeur.user.last_name}</td>
+                                        <td className="p-3 font-semibold">
+                                            {course.client?.user?.last_name || "N/A"}
+                                        </td>
+                                        <td className="p-3">
+                                            {course.chauffeur?.user?.last_name || "N/A"}
+                                        </td>
 
                                         <td className="p-3">
-                                            {course.adresse_depart} → {course.destination}
+                                            {course.adresse_depart.split(' ').slice(0, 5).join(' ')} → {course.destination}
                                         </td>
 
                                         <td className="p-3">{course.date_course}</td>
 
                                         <td className="p-3 font-bold text-green-600">
-                                            {course.prix_course} DH
+                                            {Number(course.prix_course).toFixed(2)} DH
                                         </td>
 
                                         <td className="p-3">
                                             <span className={`px-3 py-1 text-xs font-bold rounded-full
-                                                ${course.status === "terminée"
+                                                ${course.status === "terminee"
                                                     ? "bg-green-100 text-green-600"
-                                                    : course.status === "en cours"
+                                                    : course.status === "en attente"
                                                     ? "bg-blue-100 text-blue-600"
                                                     : "bg-red-100 text-red-600"}`}>
                                                 {course.status}
@@ -137,6 +159,36 @@ export default function Courses() {
                             <p className="p-4 text-center text-slate-500">
                                 Aucune course trouvée
                             </p>
+                        )}
+
+                        {/* ── Pagination Controls ── */}
+                        {pagination.last_page > 1 && (
+                            <div className="flex items-center justify-between px-6 py-4 border-t bg-white">
+                                <div className="text-sm text-slate-600">
+                                    Page {pagination.current_page} sur {pagination.last_page} • 
+                                    {pagination.total} course(s)
+                                </div>
+
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={() => fetchCourses(currentPage - 1)}
+                                        disabled={currentPage === 1}
+                                        className="flex items-center gap-1 px-3 py-2 rounded-lg bg-slate-100 text-slate-700 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-200"
+                                    >
+                                        <FaChevronLeft size={14} />
+                                        Précédent
+                                    </button>
+
+                                    <button
+                                        onClick={() => fetchCourses(currentPage + 1)}
+                                        disabled={currentPage === pagination.last_page}
+                                        className="flex items-center gap-1 px-3 py-2 rounded-lg bg-slate-100 text-slate-700 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-200"
+                                    >
+                                        Suivant
+                                        <FaChevronRight size={14} />
+                                    </button>
+                                </div>
+                            </div>
                         )}
                     </div>
 

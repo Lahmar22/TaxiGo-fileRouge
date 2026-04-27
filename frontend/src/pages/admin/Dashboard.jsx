@@ -14,32 +14,13 @@ import {
     CartesianGrid
 } from "recharts";
 
-// ── Mock data ─────────────────────────
-const revenueData = [
-    { day: "Lun", revenus: 1200 },
-    { day: "Mar", revenus: 2100 },
-    { day: "Mer", revenus: 1800 },
-    { day: "Jeu", revenus: 2400 },
-    { day: "Ven", revenus: 3000 },
-    { day: "Sam", revenus: 2800 },
-    { day: "Dim", revenus: 3500 }
-];
-
-const coursesData = [
-    { name: "Lun", courses: 40 },
-    { name: "Mar", courses: 60 },
-    { name: "Mer", courses: 55 },
-    { name: "Jeu", courses: 70 },
-    { name: "Ven", courses: 90 },
-    { name: "Sam", courses: 85 },
-    { name: "Dim", courses: 100 }
-];
-
 export default function Dashboard() {
     const [openSidebar, setOpenSidebar] = useState(false);
     const user = JSON.parse(localStorage.getItem("user"));
     const token = localStorage.getItem("token");
     const [statistics, setStatistics] = useState({});
+    const [revenueData, setRevenueData] = useState([]);
+    const [coursesData, setCoursesData] = useState([]);
 
     useEffect(() => {
         const fetchStatistics = async () => {
@@ -55,13 +36,41 @@ export default function Dashboard() {
 
                 setStatistics(res.data);
                 console.log("Statistiques chargées :", res.data);
+
+                // Transform revenue per day data from backend
+                if (res.data.revenuParJour && Array.isArray(res.data.revenuParJour)) {
+                    const formattedRevenueData = res.data.revenuParJour.map((item) => ({
+                        day: new Date(item.jour).toLocaleDateString("fr-FR", {
+                            weekday: "short"
+                        }),
+                        revenus: parseFloat(item.total_revenu),
+                        date: item.jour
+                    }));
+
+                    setRevenueData(formattedRevenueData);
+                    console.log("Revenus par jour chargés :", formattedRevenueData);
+                }
+
+                // Transform courses per day data from backend
+                if (res.data.coursesParJour && Array.isArray(res.data.coursesParJour)) {
+                    const formattedCoursesData = res.data.coursesParJour.map((item) => ({
+                        name: new Date(item.jour).toLocaleDateString("fr-FR", {
+                            weekday: "short"
+                        }),
+                        courses: parseInt(item.total_courses),
+                        date: item.jour
+                    }));
+
+                    setCoursesData(formattedCoursesData);
+                    console.log("Courses par jour chargées :", formattedCoursesData);
+                }
             } catch (err) {
                 console.error("Erreur lors du chargement des statistiques :", err);
             }
         };
 
         fetchStatistics();
-    }, []);
+    }, [token]);
 
 
     return (
@@ -86,8 +95,8 @@ export default function Dashboard() {
                     {/* ── Cards rapides ── */}
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
                         <div className="bg-white p-5 rounded-2xl shadow">
-                            <p className="text-slate-500 text-sm">Revenus (semaine)</p>
-                            <h3 className="text-2xl font-bold">16 800 DH</h3>
+                            <p className="text-slate-500 text-sm">Revenus</p>
+                            <h3 className="text-2xl font-bold">{Number(statistics.revenus).toFixed(2)} DH</h3>
                         </div>
 
                         <div className="bg-white p-5 rounded-2xl shadow">
