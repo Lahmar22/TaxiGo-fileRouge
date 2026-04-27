@@ -121,7 +121,15 @@ export default function Dashboard() {
 
             const newCourse = event.course;
 
-            if (newCourse && !newCourse.chauffeur_id && newCourse.status !== "annuler" && newCourse.status !== "terminee") {
+            if (
+                newCourse &&
+                !newCourse.chauffeur_id &&
+                newCourse.status !== "annuler" &&
+                newCourse.status !== "terminee" &&
+                newCourse.adresse_depart?.toLowerCase().includes(
+                    user?.chauffeur?.ville?.toLowerCase()
+                )
+            ) {
                 setOffers(prev => {
                     const exists = prev.some(o => o.id === newCourse.id);
                     if (exists) return prev;
