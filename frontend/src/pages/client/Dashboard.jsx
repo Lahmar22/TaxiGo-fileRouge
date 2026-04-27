@@ -11,6 +11,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import Paiement from "./components/Paiement";
 import { stripePromise } from "../../stripe";
+import Reclamation from "./components/Reclamation";
 
 
 
@@ -35,6 +36,7 @@ export default function Dashboard() {
   const [isTerminated, setIsTerminated] = useState(false);
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
+  const [open, setOpen] = useState(false);
 
 
   // Custom icon for user location
@@ -322,12 +324,54 @@ export default function Dashboard() {
 
         <main className="flex-1 p-6 space-y-6">
           <div className="mb-8 animate-fade-up">
-            <h2 className="text-3xl font-black text-slate-900">
-              Bonjour, <span className="gradient-text">{user.first_name} {user.last_name}</span>
-            </h2>
-            <p className="text-slate-500 mt-1">Prêt pour votre prochaine course ?</p>
-          </div>
+            <div className="flex items-center justify-between flex-wrap gap-4">
 
+              {/* Left: Greeting */}
+              <div>
+                <h2 className="text-3xl font-black text-slate-900">
+                  Bonjour,{" "}
+                  <span className="gradient-text">
+                    {user.first_name} {user.last_name}
+                  </span>
+                </h2>
+                <p className="text-slate-500 mt-1">
+                  Prêt pour votre prochaine course ?
+                </p>
+              </div>
+
+              {/* Right: Button */}
+              <button
+                onClick={() => setOpen(true)}
+                className="bg-red-500 hover:bg-red-600 text-white px-5 py-2.5 rounded-lg shadow transition"
+              >
+                Faire une réclamation
+              </button>
+            </div>
+
+            {/* Modal */}
+            {open && (
+              <div
+                className="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
+                onClick={() => setOpen(false)} // 👈 click outside closes
+              >
+                <div
+                  className="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl relative animate-scale-in"
+                  onClick={(e) => e.stopPropagation()} // 👈 prevent close when clicking inside
+                >
+                  {/* Close button */}
+                  <button
+                    onClick={() => setOpen(false)}
+                    className="absolute top-3 right-3 text-slate-500 hover:text-red-500 text-lg"
+                  >
+                    ✕
+                  </button>
+
+                  {/* Reclamation component */}
+                  <Reclamation onClose={() => setOpen(false)} />
+                </div>
+              </div>
+            )}
+          </div>
 
           <div className="grid xl:grid-cols-5 gap-6">
 
@@ -449,7 +493,7 @@ export default function Dashboard() {
                     </div>
                     <div className="text-center">
                       <p className="text-xs text-gray-400">Durée</p>
-                      <p className="text-sm font-semibold text-gray-700 mt-0.5">2 min</p>
+                      <p className="text-sm font-semibold text-gray-700 mt-0.5">{Number(duration).toFixed(2)} min</p>
                     </div>
                     <div className="text-center">
                       <p className="text-xs text-gray-400">Prix estimé</p>
@@ -536,7 +580,7 @@ export default function Dashboard() {
                   </div>
                   <div className="text-center p-3 bg-white rounded-lg border border-slate-100 shadow-sm">
                     <p className="text-xs text-slate-500 font-medium mb-1">Durée</p>
-                    <p className="text-lg font-bold text-slate-900">{Math.round(bookingData.duration || 0)}</p>
+                    <p className="text-lg font-bold text-slate-900">{Number(duration).toFixed(2) || 0}</p>
                     <p className="text-xs text-slate-500">min</p>
                   </div>
                   <div className="text-center p-3 bg-white rounded-lg border border-slate-100 shadow-sm">
@@ -546,13 +590,12 @@ export default function Dashboard() {
                   </div>
                 </div>
 
-                {/* Rating Section */}
                 <div className="bg-white rounded-xl p-5 border border-slate-100 shadow-sm mb-6">
-                  <label htmlFor="rating" className="block text-sm font-semibold text-slate-900 mb-4">
+                  <label className="block text-sm font-semibold text-slate-900 mb-4">
                     Évaluation
                   </label>
 
-                  <div className="relative">
+                  <div className="relative mb-4">
                     <select
                       id="rating"
                       value={rating}
@@ -575,7 +618,24 @@ export default function Dashboard() {
                     </div>
                   </div>
 
-                 
+                  {/* Commentaire optionnel */}
+                  <div>
+                    <label
+                      htmlFor="commentaire"
+                      className="block text-sm font-medium text-slate-700 mb-2"
+                    >
+                      Commentaire <span className="text-slate-400">(optionnel)</span>
+                    </label>
+
+                    <textarea
+                      id="commentaire"
+                      name="commentaire"
+                      onChange={(e) => setComment(e.target.value)}
+                      placeholder="Ajouter un commentaire (facultatif)..."
+                      rows={2}
+                      className="w-full px-4 py-3 rounded-lg border-2 border-slate-300 text-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all resize-none"
+                    />
+                  </div>
                 </div>
 
                 <div className="flex gap-3 border-fuchsia-500 p-3 rounded-lg">
