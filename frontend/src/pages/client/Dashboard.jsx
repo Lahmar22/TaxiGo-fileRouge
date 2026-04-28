@@ -352,11 +352,11 @@ export default function Dashboard() {
             {open && (
               <div
                 className="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
-                onClick={() => setOpen(false)} // 👈 click outside closes
+                onClick={() => setOpen(false)}
               >
                 <div
                   className="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl relative animate-scale-in"
-                  onClick={(e) => e.stopPropagation()} // 👈 prevent close when clicking inside
+                  onClick={(e) => e.stopPropagation()}
                 >
                   {/* Close button */}
                   <button
@@ -406,15 +406,17 @@ export default function Dashboard() {
                     ✅ Paiement effectué avec succès
                   </div>
                 )}
+                {!isPaid && (
+                  <button
+                    onClick={() => resetBooking(bookingData.id)}
+                    className="w-full py-2 px-4 rounded-lg font-semibold text-sm bg-red-500 hover:bg-red-600 text-white transition-all duration-300"
+                  >
+                    Annuler
+                  </button>
+                )}
 
 
-                {/* Bouton annuler */}
-                <button
-                  onClick={() => resetBooking(bookingData.id)}
-                  className="w-full py-2 px-4 rounded-lg font-semibold text-sm bg-red-500 hover:bg-red-600 text-white transition-all duration-300"
-                >
-                  Annuler
-                </button>
+
               </div>
             ) : bookingData?.status === "confirmee" ? (
               <div className="xl:col-span-2 bg-white rounded-lg p-6 space-y-4 shadow">
