@@ -385,19 +385,33 @@ export default function Dashboard() {
 
 
                 {!isPaid && (
-                  <div className="mt-4">
-                    <Elements stripe={stripePromise}>
-                      <Paiement
-                        bookingData={{
-                          ...bookingData,
-                          amount: Number(bookingData.prix_course),
-                          course_id: bookingData?.id,
-                        }}
-                        onSuccess={() => {
-                          setIsPaid(true);
-                        }}
-                      />
-                    </Elements>
+
+                  <div className="mt-6 p-5 bg-white shadow-md rounded-xl border border-gray-100">
+
+                    
+                    <div className="mb-4">
+                      <p className="text-gray-600 text-sm">Prix de course</p>
+                      <p className="text-2xl font-bold text-green-600">
+                        {Number(price).toFixed(2)} MAD
+                      </p>
+                    </div>
+
+                    
+                    <div className="mt-3">
+                      <Elements stripe={stripePromise}>
+                        <Paiement
+                          bookingData={{
+                            ...bookingData,
+                            amount: Number(bookingData.prix_course).toFixed(2),
+                            course_id: bookingData?.id,
+                          }}
+                          onSuccess={() => {
+                            setIsPaid(true);
+                          }}
+                        />
+                      </Elements>
+                    </div>
+
                   </div>
                 )}
 
