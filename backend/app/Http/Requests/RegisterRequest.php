@@ -32,6 +32,8 @@ class RegisterRequest extends FormRequest
             'role' => 'required|string|in:admin,chauffeur,client',
             'permis' => 'required_if:role,chauffeur|file|mimes:jpg,jpeg,png,pdf|max:2048',
             'carte_grise' => 'required_if:role,chauffeur|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'grima' => 'required_if:role,chauffeur|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'ville' => 'required_if:role,chauffeur|string|max:100',
         
         ];
     }
