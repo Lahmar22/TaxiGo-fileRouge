@@ -15,6 +15,7 @@ export default function Register() {
         role: "",
         permis: "",
         carte_grise: "",
+        grima:"",
     });
 
     const [message, setMessage] = useState("");
@@ -47,6 +48,14 @@ export default function Register() {
 
         if (form.carte_grise) {
             data.append("carte_grise", form.carte_grise);
+        }
+
+        if (form.grima) {
+            data.append("grima", form.grima);
+        }
+
+        if (form.ville) {
+            data.append("ville", form.ville);
         }
 
         try {
@@ -139,6 +148,19 @@ export default function Register() {
 
                     {form.role === "chauffeur" && (
                         <><div className="space-y-4">
+                            <div>
+                                <label htmlFor="permis" className="block mb-1 font-medium">
+                                    Ville
+                                </label>
+                                <input
+                                    type="text"
+                                    id="ville"
+                                    name="ville"
+                                    onChange={handleChange}
+                                    className="w-full px-4 py-2 rounded-xl border border-slate-200 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-yellow-400 file:text-white hover:file:bg-yellow-500"
+                                />
+                            </div>
+
                             {/* Permis */}
                             <div>
                                 <label htmlFor="permis" className="block mb-1 font-medium">
@@ -162,6 +184,19 @@ export default function Register() {
                                     type="file"
                                     id="carte_grise"
                                     name="carte_grise"
+                                    onChange={handleChange}
+                                    className="w-full px-4 py-2 rounded-xl border border-slate-200 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-yellow-400 file:text-white hover:file:bg-yellow-500"
+                                />
+                            </div>
+
+                            <div>
+                                <label htmlFor="carte_grise" className="block mb-1 font-medium">
+                                    Grima
+                                </label>
+                                <input
+                                    type="file"
+                                    id="grima"
+                                    name="grima"
                                     onChange={handleChange}
                                     className="w-full px-4 py-2 rounded-xl border border-slate-200 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-yellow-400 file:text-white hover:file:bg-yellow-500"
                                 />
