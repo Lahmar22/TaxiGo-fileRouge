@@ -32,12 +32,13 @@ class AuthController extends Controller
                 Role::create(['role_name' => 'client', 'user_id' => $user->id]);
                 break;
             case 'chauffeur':
-                Chauffeur::create(['user_id' => $user->id]);
+                Chauffeur::create(['user_id' => $user->id, 'ville' => $request->ville]);
                 Role::create(['role_name' => 'chauffeur', 'user_id' => $user->id]);
                 Vehicule::create([
                     'permis' => $request->file('permis')->store('permis', 'public'),
                     'carte_grise' => $request->file('carte_grise')->store('carte_grise', 'public'),
                     'chauffeur_id' => Chauffeur::where('user_id', $user->id)->first()->id,
+                    'grima' => $request->file('grima')->store('grima', 'public'),
                 ]);
                 break;
             case 'admin':

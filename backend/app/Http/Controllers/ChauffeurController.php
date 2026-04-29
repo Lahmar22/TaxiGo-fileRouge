@@ -26,7 +26,6 @@ class ChauffeurController extends Controller
         return response()->json([
             'message' => 'Chauffeur validé avec succès',
             'chauffeur' => $chauffeur,
-            'notification' => $notification
         ]);
     }
 
