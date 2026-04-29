@@ -46,30 +46,17 @@ export default function ValidationChauffeurs() {
             }
         })
             .then(() => {
-                setDrivers(drivers.map(d =>
-                    d.id === id ? { ...d, validate: true } : d
-                ));
+                setDrivers(prevDrivers =>
+                    prevDrivers.map(d =>
+                        d.id === id ? { ...d, validate: true } : d
+                    )
+                );
             })
             .catch((err) => {
                 console.error("Erreur lors de la validation du chauffeur :", err);
             });
     };
 
-    const rejectDriver = (id) => {
-        axios.patch(`http://127.0.0.1:8000/api/chauffeurs/${id}`, {}, {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        })
-            .then(() => {
-                setDrivers(drivers.map(d =>
-                    d.id === id ? { ...d, validate: false } : d
-                ));
-            })
-            .catch((err) => {
-                console.error("Erreur lors du refus de la validation du chauffeur :", err);
-            });
-    };
 
     return (
         <div className="flex min-h-screen bg-slate-100">
@@ -83,7 +70,7 @@ export default function ValidationChauffeurs() {
                     {/* ── Header ── */}
                     <div className="mb-6">
                         <h2 className="text-2xl font-black text-slate-900">
-                            Validation des chauffeurs 
+                            Validation des chauffeurs
                         </h2>
                         <p className="text-slate-500">
                             Acceptez ou refusez les demandes d'inscription
@@ -105,6 +92,9 @@ export default function ValidationChauffeurs() {
                                     <p className="text-sm text-slate-500">
                                         {driver.user.email}
                                     </p>
+                                    <p className="text-sm text-slate-500">
+                                        {driver.ville}
+                                    </p>
 
                                     <div className="flex gap-4 mt-2 text-sm text-slate-600">
                                         <a
@@ -123,6 +113,15 @@ export default function ValidationChauffeurs() {
                                             className="flex items-center gap-1 text-blue-500"
                                         >
                                             <FaIdCard /> Permis
+                                        </a>
+
+                                        <a
+                                            href={`${BASE_URL}${driver.vehicule.grima}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="flex items-center gap-1 text-blue-500"
+                                        >
+                                            <FaIdCard /> Grima
                                         </a>
                                     </div>
 
@@ -148,13 +147,6 @@ export default function ValidationChauffeurs() {
                                             <FaCheck />
                                         </button>
 
-                                        <button
-                                            onClick={() => rejectDriver(driver.id)}
-                                            className="p-2 bg-red-500 text-white rounded-lg"
-                                            title="Refuser"
-                                        >
-                                            <FaTimes />
-                                        </button>
                                     </div>
                                 )}
                             </div>
