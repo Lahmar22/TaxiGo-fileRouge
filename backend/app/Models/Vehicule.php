@@ -11,6 +11,7 @@ class Vehicule extends Model
         'permis',
         'carte_grise',
         'chauffeur_id',
+        'grima',
     ];
 
     public function chauffeur()
